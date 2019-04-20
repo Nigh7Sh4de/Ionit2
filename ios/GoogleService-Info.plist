@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>516748484660-48ojdlq2cbupi0fg8hd39v72rcdggjlv.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.516748484660-48ojdlq2cbupi0fg8hd39v72rcdggjlv</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>516748484660-2qr75b75kdg8drg8a6k5r2pgsb7mtv9k.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBzRAUf6y8imt2LncpzPMtsV6zO4SWpJtE</string>
+	<key>GCM_SENDER_ID</key>
+	<string>516748484660</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.ionit</string>
+	<key>PROJECT_ID</key>
+	<string>ionit-186302</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ionit-186302.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:516748484660:ios:05862769f214c9ef</string>
+	<key>DATABASE_URL</key>
+	<string>https://ionit-186302.firebaseio.com</string>
+</dict>
+</plist>

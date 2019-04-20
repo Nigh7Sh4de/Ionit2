@@ -1,0 +1,39 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '9.0'
+
+install! 'cocoapods', :deterministic_uuids => false
+
+target 'ionit' do
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+  'Core',
+  'CxxBridge',
+  'DevSupport',
+  'RCTAnimation',
+  'RCTActionSheet',
+  'RCTBlob',
+  'RCTGeolocation',
+  'RCTImage',
+  'RCTLinkingIOS',
+  'RCTNetwork',
+  'RCTSettings',
+  'RCTText',
+  'RCTWebSocket'
+  ]
+
+  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+
+  pod 'Firebase/Core'
+  pod 'RNFirebase', :path => '../node_modules/react-native-firebase/ios'
+
+end
+
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        if target.name == "React"
+            target.remove_from_project
+        end
+    end
+end
