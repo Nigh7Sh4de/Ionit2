@@ -10,6 +10,7 @@ import Thunk from 'redux-thunk'
 import reducers from '../redux'
 
 import Nav from './nav'
+import Login from './login'
 import Events from './events'
 import Times from './times'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -41,8 +42,9 @@ export default class App extends Component {
               <Router>
                 {/* <Nav /> */}
                 <Switch>
+                  <Route path="/" component={Login} />
                   <Route path="/events" component={Events} />
-                  <Route path="/" component={Times} />
+                  <Route path="/times" component={Times} />
                 </Switch>
               </Router>
             </SafeAreaView>
