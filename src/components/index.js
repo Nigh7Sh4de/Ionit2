@@ -6,6 +6,7 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { Provider } from 'react-redux'
 import Logger from 'redux-logger'
+import Thunk from 'redux-thunk'
 import reducers from '../redux'
 
 import Nav from './nav'
@@ -20,7 +21,7 @@ const persistConfig = {
 
 const store = createStore(
   persistReducer(persistConfig, reducers),
-  applyMiddleware(Logger)
+  applyMiddleware(Thunk, Logger)
 )
 const persistor = persistStore(store)
 
