@@ -33,6 +33,18 @@ PODS:
     - GoogleUtilities/Network (~> 5.2)
     - "GoogleUtilities/NSData+zlib (~> 5.2)"
     - nanopb (~> 0.3)
+  - GoogleSignIn (4.4.0):
+    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
+    - "GoogleToolboxForMac/NSString+URLArguments (~> 2.1)"
+    - GTMSessionFetcher/Core (~> 1.1)
+  - GoogleToolboxForMac/DebugUtils (2.2.0):
+    - GoogleToolboxForMac/Defines (= 2.2.0)
+  - GoogleToolboxForMac/Defines (2.2.0)
+  - "GoogleToolboxForMac/NSDictionary+URLArguments (2.2.0)":
+    - GoogleToolboxForMac/DebugUtils (= 2.2.0)
+    - GoogleToolboxForMac/Defines (= 2.2.0)
+    - "GoogleToolboxForMac/NSString+URLArguments (= 2.2.0)"
+  - "GoogleToolboxForMac/NSString+URLArguments (2.2.0)"
   - GoogleUtilities/AppDelegateSwizzler (5.7.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -51,6 +63,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (5.7.0):
     - GoogleUtilities/Logger
+  - GTMSessionFetcher/Core (1.2.1)
   - nanopb (0.3.901):
     - nanopb/decode (= 0.3.901)
     - nanopb/encode (= 0.3.901)
@@ -112,6 +125,9 @@ PODS:
   - RNFirebase (5.3.1):
     - Firebase/Core
     - React
+  - RNGoogleSignin (1.2.3):
+    - GoogleSignIn (~> 4.4.0)
+    - React
   - yoga (0.59.5.React)
 
 DEPENDENCIES:
@@ -119,6 +135,7 @@ DEPENDENCIES:
   - Firebase/Core
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - GoogleSignIn (~> 4.4.0)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
   - React/DevSupport (from `../node_modules/react-native`)
@@ -133,6 +150,7 @@ DEPENDENCIES:
   - React/RCTText (from `../node_modules/react-native`)
   - React/RCTWebSocket (from `../node_modules/react-native`)
   - RNFirebase (from `../node_modules/react-native-firebase/ios`)
+  - RNGoogleSignin (from `../node_modules/react-native-google-signin`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -143,7 +161,10 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseInstanceID
     - GoogleAppMeasurement
+    - GoogleSignIn
+    - GoogleToolboxForMac
     - GoogleUtilities
+    - GTMSessionFetcher
     - nanopb
 
 EXTERNAL SOURCES:
@@ -157,6 +178,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native"
   RNFirebase:
     :path: "../node_modules/react-native-firebase/ios"
+  RNGoogleSignin:
+    :path: "../node_modules/react-native-google-signin"
   yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -170,12 +193,16 @@ SPEC CHECKSUMS:
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   GoogleAppMeasurement: ffe513e90551844a739e7bcbb1d2aca1c28a4338
+  GoogleSignIn: 7ff245e1a7b26d379099d3243a562f5747e23d39
+  GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
   GoogleUtilities: 273e67030e0de313e7304f6dcfa96fc5214f6c23
+  GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
   RNFirebase: 57f6c2adb24355b4e6211e028a8e97e473432245
+  RNGoogleSignin: 40c1ac794c0eaaed2c6a42faf26972957e834f17
   yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
 
-PODFILE CHECKSUM: f88128766dab170c07365b46e6ab097b083f7fb1
+PODFILE CHECKSUM: 9a270c8c9794d3603c849c5a832fbfb4cf1440c4
 
 COCOAPODS: 1.5.3

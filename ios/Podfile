@@ -27,6 +27,8 @@ target 'ionit' do
 
   pod 'Firebase/Core'
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase/ios'
+  pod 'RNGoogleSignin', :path => '../node_modules/react-native-google-signin'
+  pod 'GoogleSignIn', '~> 4.4.0'
 
 end
 
