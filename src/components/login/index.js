@@ -9,6 +9,7 @@ import {
 } from 'react-native-google-signin'
 
 import { initialize } from '../../redux/users'
+import { getGoogleCalendarList } from '../../redux/events'
 
 export class Login extends Component {
   constructor(props) {
@@ -23,6 +24,7 @@ export class Login extends Component {
   async componentDidMount() {
     try {
       await GoogleSignin.configure({
+        scopes: ['https://www.googleapis.com/auth/calendar'],
         webClientId:
           '766343695982-orlkjjjl38772sjtrumgj4ak2daf95vg.apps.googleusercontent.com',
         offlineAccess: true,
@@ -51,7 +53,7 @@ export class Login extends Component {
       await GoogleSignin.hasPlayServices()
 
       const userInfo = await GoogleSignin.signIn()
-      this.setState({ userInfo })
+      this.props.getGoogleCalendarList(userInfo.accessToken)
     } catch (error) {
       console.error(error)
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -67,6 +69,10 @@ export class Login extends Component {
   }
 
   render() {
+    const calendars = this.props.calendars.map(calendar => (
+      <Text>{JSON.stringify(calendar)}</Text>
+    ))
+
     return (
       <View>
         <Text>Login</Text>
@@ -77,7 +83,7 @@ export class Login extends Component {
           onPress={this.signIn}
           disabled={this.state.isSigninInProgress}
         />
-        <Text>{JSON.stringify(this.state.userInfo)}</Text>
+        {calendars}
       </View>
     )
   }
@@ -86,11 +92,15 @@ export class Login extends Component {
 function mapStateToProps(state) {
   return {
     user: state.users.data,
+    calendars: state.events.calendars,
   }
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ initialize }, dispatch)
+  return bindActionCreators({ initialize, getGoogleCalendarList }, dispatch)
 }
 
-export default connect(mapStateToProps)(Login)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login)
