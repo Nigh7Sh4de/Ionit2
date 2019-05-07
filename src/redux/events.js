@@ -1,5 +1,6 @@
 export const ADD_EVENT = 'ADD_EVENT'
 export const SET_CALENDARS = 'SET_CALENDARS'
+export const SET_SETTINGS = 'SET_SETTINGS'
 
 export function addEvent(event) {
   return {
@@ -12,6 +13,13 @@ export function setCalendars(calendars) {
   return {
     type: SET_CALENDARS,
     calendars,
+  }
+}
+
+export function setSettings(settings) {
+  return {
+    type: SET_SETTINGS,
+    settings,
   }
 }
 
@@ -34,7 +42,10 @@ export function getGoogleCalendarList(accessToken) {
 
 const initialState = {
   calendars: [],
-  data: [],
+  settings: {
+    incoming: {},
+    outgoing: {},
+  },
 }
 
 export default function reducer(state = initialState, action) {
@@ -43,6 +54,8 @@ export default function reducer(state = initialState, action) {
       return { ...state, data: [...state.data, action.event] }
     case SET_CALENDARS:
       return { ...state, calendars: action.calendars }
+    case SET_SETTINGS:
+      return { ...state, settings: action.settings }
     default:
       return state
   }

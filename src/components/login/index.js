@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, Switch } from 'react-native'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
@@ -9,7 +9,7 @@ import {
 } from 'react-native-google-signin'
 
 import { initialize } from '../../redux/users'
-import { getGoogleCalendarList } from '../../redux/events'
+import { getGoogleCalendarList, setSettings } from '../../redux/events'
 
 export class Login extends Component {
   constructor(props) {
@@ -17,6 +17,10 @@ export class Login extends Component {
 
     this.signIn = this._signIn.bind(this)
     this.state = {
+      settings: {
+        incoming: {},
+        outgoing: {},
+      },
       isSigninInProgress: false,
     }
   }
@@ -68,9 +72,33 @@ export class Login extends Component {
     }
   }
 
+  onValueChange(group, id, value) {
+    const settings = {
+      ...this.state.settings,
+      [group]: {
+        ...this.state.settings[group],
+        [id]: value,
+      },
+    }
+    this.setState({ settings }, () => this.props.setSettings(settings))
+  }
+
   render() {
     const calendars = this.props.calendars.map(calendar => (
-      <Text>{JSON.stringify(calendar)}</Text>
+      <View
+        key={calendar.id}
+        style={{ flexDirection: 'row', alignItems: 'center' }}
+      >
+        <Text>{calendar.summary}</Text>
+        <Switch
+          onValueChange={this.onValueChange.bind(this, 'incoming', calendar.id)}
+          value={this.state.settings.incoming[calendar.id]}
+        />
+        <Switch
+          onValueChange={this.onValueChange.bind(this, 'outgoing', calendar.id)}
+          value={this.state.settings.outgoing[calendar.id]}
+        />
+      </View>
     ))
 
     return (
@@ -97,7 +125,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ initialize, getGoogleCalendarList }, dispatch)
+  return bindActionCreators(
+    { initialize, getGoogleCalendarList, setSettings },
+    dispatch
+  )
 }
 
 export default connect(
