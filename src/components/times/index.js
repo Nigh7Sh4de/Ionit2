@@ -32,6 +32,7 @@ export class Times extends Component {
 
     if (times.length) {
       const { time, active } = times[times.length - 1]
+      const date = new Date(time)
       const state = active ? 'Active' : 'Resting'
       if (active) {
         verb = 'Pause'
@@ -39,7 +40,7 @@ export class Times extends Component {
       headline = (
         <View>
           <Text>
-            {state} since: {time.toLocaleTimeString()}
+            {state} since: {date.toLocaleTimeString()}
           </Text>
         </View>
       )

@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { SafeAreaView, View } from 'react-native'
 import { NativeRouter as Router, Switch, Route } from 'react-router-native'
 import { createStore, applyMiddleware } from 'redux'
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 import { Provider } from 'react-redux'
 import Logger from 'redux-logger'
 import reducers from '../redux'
@@ -9,8 +11,18 @@ import reducers from '../redux'
 import Nav from './nav'
 import Events from './events'
 import Times from './times'
+import { PersistGate } from 'redux-persist/integration/react'
 
-const store = createStore(reducers, applyMiddleware(Logger))
+const persistConfig = {
+  key: 'ionit',
+  storage,
+}
+
+const store = createStore(
+  persistReducer(persistConfig, reducers),
+  applyMiddleware(Logger)
+)
+const persistor = persistStore(store)
 
 export default class App extends Component {
   render() {
@@ -23,15 +35,17 @@ export default class App extends Component {
         }}
       >
         <Provider store={store}>
-          <SafeAreaView>
-            <Router>
-              {/* <Nav /> */}
-              <Switch>
-                <Route path="/events" component={Events} />
-                <Route path="/" component={Times} />
-              </Switch>
-            </Router>
-          </SafeAreaView>
+          <PersistGate persistor={persistor}>
+            <SafeAreaView>
+              <Router>
+                {/* <Nav /> */}
+                <Switch>
+                  <Route path="/events" component={Events} />
+                  <Route path="/" component={Times} />
+                </Switch>
+              </Router>
+            </SafeAreaView>
+          </PersistGate>
         </Provider>
       </View>
     )

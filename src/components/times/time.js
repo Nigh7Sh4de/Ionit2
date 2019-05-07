@@ -4,6 +4,7 @@ import { View, Text } from 'react-native'
 export default class Time extends PureComponent {
   render() {
     const { time, active } = this.props
+    const date = new Date(time)
     return (
       <View
         style={{
@@ -15,7 +16,7 @@ export default class Time extends PureComponent {
           borderLeftColor: active ? '#6CC551' : '#3DCEFF',
         }}
       >
-        <Text>{time.toLocaleTimeString()}</Text>
+        <Text>{date.toLocaleTimeString()}</Text>
       </View>
     )
   }
