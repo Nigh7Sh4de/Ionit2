@@ -37,7 +37,7 @@ export function getGoogleCalendarEvents(start, end) {
 }
 
 const initialState = {
-  data: {},
+  data: [],
 }
 
 export default function reducer(state = initialState, action) {
@@ -56,7 +56,9 @@ function massageEventsResponse(events, newEvents) {
   const all = [...events, ...newEvents]
   const seen = {}
   return all.filter(event => {
-    if ((seen[event.id] = true)) return false
-    return (seen[event.id] = true)
+    if (!event.start.dateTime) return false
+    if (seen[event.id] === true) return false
+    seen[event.id] = true
+    return true
   })
 }
