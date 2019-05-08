@@ -1,62 +1,62 @@
-export const ADD_EVENT = 'ADD_EVENT'
-export const SET_CALENDARS = 'SET_CALENDARS'
-export const SET_SETTINGS = 'SET_SETTINGS'
+import moment from 'moment'
 
-export function addEvent(event) {
+export const ADD_EVENTS = 'ADD_EVENTS'
+
+export function addEvents(events) {
   return {
-    type: ADD_EVENT,
-    event,
+    type: ADD_EVENTS,
+    events,
   }
 }
 
-export function setCalendars(calendars) {
-  return {
-    type: SET_CALENDARS,
-    calendars,
-  }
-}
+export function getGoogleCalendarEvents(start, end) {
+  return async (dispatch, getState) => {
+    const { settings } = getState().calendars
+    const { accessToken } = getState().users.data
+    const timeMin = moment(start).startOf('day')
+    const timeMax = moment(end || start).endOf('day')
+    let events = []
+    for (let id in settings.incoming) {
+      if (!settings.incoming[id]) continue
 
-export function setSettings(settings) {
-  return {
-    type: SET_SETTINGS,
-    settings,
-  }
-}
-
-export function getGoogleCalendarList(accessToken) {
-  return async dispatch => {
-    const response = await fetch(
-      'https://www.googleapis.com/calendar/v3/users/me/calendarList',
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-    const calendars = await response.json()
-    if (calendars.items) dispatch(setCalendars(calendars.items))
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${id}/events?timeMin=${timeMin.toISOString()}&timeMax=${timeMax.toISOString()}&singleEvents=true`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+      newEvents = await response.json()
+      if (newEvents.items) events = events.concat(newEvents.items)
+    }
+    dispatch(addEvents(events, { timeMin, timeMax }))
   }
 }
 
 const initialState = {
-  calendars: [],
-  settings: {
-    incoming: {},
-    outgoing: {},
-  },
+  data: {},
 }
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
-    case ADD_EVENT:
-      return { ...state, data: [...state.data, action.event] }
-    case SET_CALENDARS:
-      return { ...state, calendars: action.calendars }
-    case SET_SETTINGS:
-      return { ...state, settings: action.settings }
+    case ADD_EVENTS:
+      return {
+        ...state,
+        data: massageEventsResponse(state.data, action.events),
+      }
     default:
       return state
   }
+}
+
+function massageEventsResponse(events, newEvents) {
+  const all = [...events, ...newEvents]
+  const seen = {}
+  return all.filter(event => {
+    if ((seen[event.id] = true)) return false
+    return (seen[event.id] = true)
+  })
 }

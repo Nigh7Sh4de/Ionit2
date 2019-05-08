@@ -1,8 +1,15 @@
 import React, { Component } from 'react'
 import { View, Text } from 'react-native'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+
+import { getGoogleCalendarEvents } from '../../redux/events'
 
 export class Events extends Component {
+  componentDidMount() {
+    this.props.getGoogleCalendarEvents()
+  }
+
   renderEvents() {
     return this.props.events.map(event => (
       <View>
@@ -10,6 +17,7 @@ export class Events extends Component {
       </View>
     ))
   }
+
   render() {
     const events = this.renderEvents()
     return (
@@ -27,4 +35,11 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(Events)
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ getGoogleCalendarEvents }, dispatch)
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Events)

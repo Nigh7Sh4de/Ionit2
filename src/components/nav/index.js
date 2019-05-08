@@ -7,6 +7,9 @@ export default class Navbar extends PureComponent {
   render() {
     return (
       <View style={{ borderBottomWidth: 1, marginBottom: 10 }}>
+        <Link component={TouchableOpacity} to="/">
+          <Text>Login</Text>
+        </Link>
         <Link component={TouchableOpacity} to="/events">
           <Text>Events</Text>
         </Link>

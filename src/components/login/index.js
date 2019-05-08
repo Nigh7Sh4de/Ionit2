@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, Switch } from 'react-native'
+import { View, Text, Switch, TouchableOpacity } from 'react-native'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import {
@@ -7,9 +7,10 @@ import {
   GoogleSignin,
   statusCodes,
 } from 'react-native-google-signin'
+import { Link } from 'react-router-native'
 
-import { initialize } from '../../redux/users'
-import { getGoogleCalendarList, setSettings } from '../../redux/events'
+import { initialize, setUser } from '../../redux/users'
+import { getGoogleCalendarList, setSettings } from '../../redux/calendars'
 
 export class Login extends Component {
   constructor(props) {
@@ -17,10 +18,7 @@ export class Login extends Component {
 
     this.signIn = this._signIn.bind(this)
     this.state = {
-      settings: {
-        incoming: {},
-        outgoing: {},
-      },
+      settings: props.settings,
       isSigninInProgress: false,
     }
   }
@@ -57,7 +55,8 @@ export class Login extends Component {
       await GoogleSignin.hasPlayServices()
 
       const userInfo = await GoogleSignin.signIn()
-      this.props.getGoogleCalendarList(userInfo.accessToken)
+      this.props.setUser(userInfo)
+      this.props.getGoogleCalendarList()
     } catch (error) {
       console.error(error)
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -112,6 +111,9 @@ export class Login extends Component {
           disabled={this.state.isSigninInProgress}
         />
         {calendars}
+        <Link component={TouchableOpacity} to="/events">
+          <Text>Start</Text>
+        </Link>
       </View>
     )
   }
@@ -120,13 +122,14 @@ export class Login extends Component {
 function mapStateToProps(state) {
   return {
     user: state.users.data,
-    calendars: state.events.calendars,
+    calendars: state.calendars.data,
+    settings: state.calendars.settings,
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { initialize, getGoogleCalendarList, setSettings },
+    { initialize, getGoogleCalendarList, setSettings, setUser },
     dispatch
   )
 }

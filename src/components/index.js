@@ -40,9 +40,9 @@ export default class App extends Component {
           <PersistGate persistor={persistor}>
             <SafeAreaView>
               <Router>
-                {/* <Nav /> */}
+                <Nav />
                 <Switch>
-                  <Route path="/" component={Login} />
+                  <Route exact path="/" component={Login} />
                   <Route path="/events" component={Events} />
                   <Route path="/times" component={Times} />
                 </Switch>
