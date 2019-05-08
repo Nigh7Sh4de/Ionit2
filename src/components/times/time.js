@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react'
 import { View, Text } from 'react-native'
+import moment from 'moment'
 
 export default class Time extends PureComponent {
   render() {
-    const { time, active } = this.props
-    const date = new Date(time)
+    const { start, end } = this.props
     return (
       <View
         style={{
@@ -13,10 +13,12 @@ export default class Time extends PureComponent {
           borderLeftWidth: 6,
           paddingLeft: 5,
           paddingVertical: 5,
-          borderLeftColor: active ? '#6CC551' : '#3DCEFF',
+          borderLeftColor: 'grey',
         }}
       >
-        <Text>{date.toLocaleTimeString()}</Text>
+        <Text>
+          {moment(start).format('HH:mm:ss')} - {moment(end).format('HH:mm:ss')}}
+        </Text>
       </View>
     )
   }

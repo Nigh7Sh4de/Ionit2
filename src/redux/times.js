@@ -19,15 +19,9 @@ export default function reducer(state = initialState, action) {
   }
 }
 
-export function _addTime(state, { time, active }) {
-  if (active === undefined) {
-    if (state.data.length) {
-      active = !state.data[state.data.length - 1].active
-    } else active = true
-  }
-
+export function _addTime(state, { time }) {
   return {
     ...state,
-    data: [...state.data, { time, active }],
+    data: [...state.data, time],
   }
 }

@@ -1,7 +1,14 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from 'react-native'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import moment from 'moment'
 
 import { addTime } from '../../redux/times'
 import Time from './time'
@@ -10,44 +17,79 @@ export class Times extends Component {
   constructor(props) {
     super(props)
 
+    this.state = {
+      ...this.getDefaultValue(),
+      autoUpdate: true,
+    }
+
     this.onPress = this._onPress.bind(this)
+    this.autoUpdate = this._autoUpdate.bind(this)
+  }
+
+  componentDidMount() {
+    this.autoUpdate()
+  }
+
+  _autoUpdate() {
+    if (!this.state.autoUpdate) return
+
+    this.setState(
+      {
+        end: moment(),
+      },
+      () => setTimeout(this.autoUpdate, 1000)
+    )
+  }
+
+  getDefaultValue() {
+    const { times } = this.props
+    return {
+      start: times.length
+        ? moment(times[times.length - 1].time)
+        : moment().startOf('day'),
+      end: moment(),
+    }
   }
 
   renderTimes() {
-    return this.props.times.map(pause => <Time key={pause.time} {...pause} />)
+    return this.props.times.map(time => <Time key={time.start} {...time} />)
+  }
+
+  onChangeText(field, value) {
+    this.setState({
+      [field]: value,
+    })
   }
 
   _onPress() {
-    const date = new Date()
-
-    this.props.addTime(date)
+    const { start, end } = this.state
+    this.props.addTime({ start, end })
+    this.setState({
+      ...this.getDefaultValue(),
+    })
   }
 
   render() {
-    const { times } = this.props
-
-    let verb = 'Go!'
-    let headline = <Text>Click the button above to get started!</Text>
     const list = this.renderTimes()
-
-    if (times.length) {
-      const { time, active } = times[times.length - 1]
-      const date = new Date(time)
-      const state = active ? 'Active' : 'Resting'
-      if (active) {
-        verb = 'Pause'
-      }
-      headline = (
-        <View>
-          <Text>
-            {state} since: {date.toLocaleTimeString()}
-          </Text>
-        </View>
-      )
-    }
+    const start = this.state.start.format('HH:mm')
+    const end = this.state.end.format('HH:mm')
 
     return (
       <View>
+        <View>
+          <Text>Chilling since: </Text>
+          <TextInput
+            value={start}
+            onChangeText={this.onChangeText.bind(this, 'start')}
+          />
+        </View>
+        <View>
+          <Text>til: </Text>
+          <TextInput
+            value={end}
+            onChangeText={this.onChangeText.bind(this, 'end')}
+          />
+        </View>
         <TouchableOpacity
           style={{
             backgroundColor: '#C12E81',
@@ -58,9 +100,8 @@ export class Times extends Component {
           }}
           onPress={this.onPress}
         >
-          <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>{verb}</Text>
+          <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>+ Add</Text>
         </TouchableOpacity>
-        {headline}
         <ScrollView>{list}</ScrollView>
       </View>
     )
