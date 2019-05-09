@@ -7,7 +7,10 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
-import { createGoogleCalendarEvent } from '../../redux/events'
+import {
+  createGoogleCalendarEvent,
+  updateGoogleCalendarEvent,
+} from '../../redux/events'
 
 export class NewEvent extends Component {
   constructor(props) {
@@ -17,6 +20,7 @@ export class NewEvent extends Component {
     const { id } = match.params
     const { start, end } = queryString.parse(location.search)
     let event = {}
+    let foundEvent = null
 
     if (id === 'new') {
       event = {
@@ -31,11 +35,13 @@ export class NewEvent extends Component {
         location: '',
       }
     } else {
-      event = events.find(e => e.id === id)
+      foundEvent = events.find(e => e.id === id)
       event = {
-        ...event,
-        start: moment(event.start.dateTime),
-        end: moment(event.end.dateTime),
+        start: moment(foundEvent.start.dateTime),
+        end: moment(foundEvent.end.dateTime),
+        summary: foundEvent.summary,
+        description: foundEvent.description,
+        location: foundEvent.location,
       }
     }
 
@@ -46,6 +52,7 @@ export class NewEvent extends Component {
       },
       done: false,
       loading: false,
+      foundEvent,
       ...event,
     }
 
@@ -84,7 +91,15 @@ export class NewEvent extends Component {
   }
 
   async _onPress() {
-    const { start, end, summary, description, location } = this.state
+    const {
+      foundEvent,
+      start,
+      end,
+      summary,
+      description,
+      location,
+    } = this.state
+
     const event = {
       start: {
         dateTime: start.toISOString(),
@@ -100,7 +115,17 @@ export class NewEvent extends Component {
     this.setState({
       loading: true,
     })
-    await this.props.createGoogleCalendarEvent(event)
+
+    if (foundEvent) {
+      await this.props.updateGoogleCalendarEvent({
+        ...event,
+        id: foundEvent.id,
+        calendarId: foundEvent.calendarId,
+      })
+    } else {
+      await this.props.createGoogleCalendarEvent(event)
+    }
+
     this.setState({
       loading: false,
       done: true,
@@ -187,7 +212,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createGoogleCalendarEvent }, dispatch)
+  return bindActionCreators(
+    { createGoogleCalendarEvent, updateGoogleCalendarEvent },
+    dispatch
+  )
 }
 
 export default connect(

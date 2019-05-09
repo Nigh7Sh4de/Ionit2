@@ -28,7 +28,14 @@ export function getGoogleCalendarEvents(start, end) {
         }
       )
       newEvents = await response.json()
-      if (newEvents.items) events = events.concat(newEvents.items)
+      if (newEvents.items) {
+        events = events.concat(
+          newEvents.items.map(event => ({
+            ...event,
+            calendarId: id,
+          }))
+        )
+      }
     }
     dispatch(addEvents(events, { timeMin, timeMax }))
   }
@@ -54,6 +61,32 @@ export function createGoogleCalendarEvent(event) {
   }
 }
 
+export function updateGoogleCalendarEvent(event) {
+  return async (dispatch, getState) => {
+    const { accessToken } = getState().users.data
+    const { calendarId } = event
+
+    console.log({ event })
+
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${
+        event.id
+      }`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(event),
+      }
+    )
+    console.log({ response })
+    const result = await response.json()
+    console.log({ result })
+  }
+}
+
 const initialState = {
   data: [],
 }
@@ -71,7 +104,7 @@ export default function reducer(state = initialState, action) {
 }
 
 function massageEventsResponse(events, newEvents) {
-  const all = [...events, ...newEvents]
+  const all = [...newEvents, ...events]
   const seen = {}
   return all.filter(event => {
     if (!event.start.dateTime) return false
