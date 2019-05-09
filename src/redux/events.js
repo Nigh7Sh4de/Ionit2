@@ -36,6 +36,26 @@ export function getGoogleCalendarEvents(start, end) {
   }
 }
 
+export function createGoogleCalendarEvent(event) {
+  return async (dispatch, getState) => {
+    // const { settings } = getState().calendars
+    const { accessToken } = getState().users.data
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${'primary'}/events`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(event),
+      }
+    )
+    const result = await response.json()
+    console.log({ result })
+  }
+}
+
 const initialState = {
   data: [],
 }

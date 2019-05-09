@@ -13,6 +13,9 @@ export default class Navbar extends PureComponent {
         <Link component={TouchableOpacity} to="/events">
           <Text>Events</Text>
         </Link>
+        <Link component={TouchableOpacity} to="/events/new">
+          <Text>New</Text>
+        </Link>
         <Link component={TouchableOpacity} to="/times">
           <Text>Times</Text>
         </Link>
