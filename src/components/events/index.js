@@ -1,14 +1,32 @@
 import React, { Component } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
+import { Redirect } from 'react-router-native'
 import { bindActionCreators } from 'redux'
 import moment from 'moment'
 
 import { getGoogleCalendarEvents } from '../../redux/events'
 
 export class Events extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      selected: null,
+    }
+  }
+
   componentDidMount() {
     this.props.getGoogleCalendarEvents()
+  }
+
+  editEvent(event) {
+    this.setState({
+      selected: {
+        ...event,
+        id: event.blank ? 'new' : event.id,
+      },
+    })
   }
 
   renderEvents() {
@@ -32,6 +50,7 @@ export class Events extends Component {
 
       if (start > end) {
         result.push({
+          blank: true,
           id: start.toISOString(),
           summary: 'undefined',
           start: { dateTime: end.toISOString() },
@@ -50,6 +69,7 @@ export class Events extends Component {
 
     if (first > dayStart) {
       result.unshift({
+        blank: true,
         id: dayStart.toISOString(),
         summary: 'undefined',
         start: { dateTime: dayStart.toISOString() },
@@ -59,6 +79,7 @@ export class Events extends Component {
 
     if (last < dayEnd) {
       result.push({
+        blank: true,
         id: last.toISOString(),
         summary: 'undefined',
         start: { dateTime: last.toISOString() },
@@ -66,8 +87,12 @@ export class Events extends Component {
       })
     }
 
-    return result.map((event, i) => (
-      <View key={event.id} style={{ marginVertical: 10 }}>
+    return result.map(event => (
+      <TouchableOpacity
+        key={event.id}
+        onPress={this.editEvent.bind(this, event)}
+        style={{ marginVertical: 10 }}
+      >
         <Text>{event.summary}</Text>
         <Text>
           {moment(event.start.dateTime || event.start.date).format('HH:mm')}
@@ -75,11 +100,22 @@ export class Events extends Component {
         <Text>
           {moment(event.end.dateTime || event.end.date).format('HH:mm')}
         </Text>
-      </View>
+      </TouchableOpacity>
     ))
   }
 
   render() {
+    const { selected } = this.state
+    if (selected) {
+      return (
+        <Redirect
+          to={`/events/${selected.id}?start=${selected.start.dateTime}&end=${
+            selected.end.dateTime
+          }`}
+        />
+      )
+    }
+
     const events = this.renderEvents()
 
     return (

@@ -45,7 +45,7 @@ export default class App extends Component {
                 <Switch>
                   <Route exact path="/" component={Login} />
                   <Route exact path="/events" component={Events} />
-                  <Route exact path="/events/new" component={NewEvent} />
+                  <Route exact path="/events/:id" component={NewEvent} />
                   <Route exact path="/times" component={Times} />
                 </Switch>
               </Router>

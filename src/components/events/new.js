@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
+import queryString from 'query-string'
 
 import { createGoogleCalendarEvent } from '../../redux/events'
 
@@ -12,7 +13,32 @@ export class NewEvent extends Component {
   constructor(props) {
     super(props)
 
-    const { start, end } = this.props
+    const { match, events, location } = this.props
+    const { id } = match.params
+    const { start, end } = queryString.parse(location.search)
+    let event = {}
+
+    if (id === 'new') {
+      event = {
+        start: start ? moment(start) : moment().startOf('hour'),
+        end: end
+          ? moment(end)
+          : moment()
+              .add(1, 'hour')
+              .startOf('hour'),
+        summary: '',
+        description: '',
+        location: '',
+      }
+    } else {
+      event = events.find(e => e.id === id)
+      event = {
+        ...event,
+        start: moment(event.start.dateTime),
+        end: moment(event.end.dateTime),
+      }
+    }
+
     this.state = {
       visible: {
         start: false,
@@ -20,15 +46,7 @@ export class NewEvent extends Component {
       },
       done: false,
       loading: false,
-      start: start ? moment(start) : moment().startOf('hour'),
-      end: end
-        ? moment(end)
-        : moment()
-            .add(1, 'hour')
-            .startOf('hour'),
-      summary: '',
-      description: '',
-      location: '',
+      ...event,
     }
 
     this.onPress = this._onPress.bind(this)
@@ -163,7 +181,9 @@ export class NewEvent extends Component {
 }
 
 function mapStateToProps(state) {
-  return {}
+  return {
+    events: state.events.data,
+  }
 }
 
 function mapDispatchToProps(dispatch) {
