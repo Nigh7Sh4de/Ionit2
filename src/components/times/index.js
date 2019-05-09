@@ -95,8 +95,9 @@ export class Times extends Component {
   render() {
     const { visible } = this.state
     const list = this.renderTimes()
-    const start = this.state.start.format('HH:mm')
-    const end = this.state.end.format('HH:mm')
+    const { start, end } = this.state
+    const _start = start.format('HH:mm')
+    const _end = end.format('HH:mm')
 
     return (
       <View>
@@ -106,10 +107,11 @@ export class Times extends Component {
             value={start}
             onPress={this.showDateTime.bind(this, 'start')}
           >
-            <Text>{start}</Text>
+            <Text>{_start}</Text>
           </TouchableOpacity>
           <DateTimePicker
             mode="time"
+            date={start.toDate()}
             isVisible={visible.start}
             onConfirm={this.onChangeDateTime.bind(this, 'start')}
             onCancel={this.hideDateTime.bind(this, 'start')}
@@ -121,10 +123,11 @@ export class Times extends Component {
             value={end}
             onPress={this.showDateTime.bind(this, 'end')}
           >
-            <Text>{end}</Text>
+            <Text>{_end}</Text>
           </TouchableOpacity>
           <DateTimePicker
             mode="time"
+            date={end.toDate()}
             isVisible={visible.end}
             onConfirm={this.onChangeDateTime.bind(this, 'end')}
             onCancel={this.hideDateTime.bind(this, 'end')}

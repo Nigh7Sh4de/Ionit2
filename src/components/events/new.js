@@ -159,6 +159,7 @@ export class NewEvent extends Component {
           </TouchableOpacity>
           <DateTimePicker
             mode="datetime"
+            date={start.toDate()}
             isVisible={visible.start}
             onConfirm={this.onChangeDateTime.bind(this, 'start')}
             onCancel={this.hideDateTime.bind(this, 'start')}
@@ -171,6 +172,7 @@ export class NewEvent extends Component {
           </TouchableOpacity>
           <DateTimePicker
             mode="datetime"
+            date={end.toDate()}
             isVisible={visible.end}
             onConfirm={this.onChangeDateTime.bind(this, 'end')}
             onCancel={this.hideDateTime.bind(this, 'end')}
