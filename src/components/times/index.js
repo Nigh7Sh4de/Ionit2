@@ -9,6 +9,7 @@ import {
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import DateTimePicker from 'react-native-modal-datetime-picker'
 
 import { addTime } from '../../redux/times'
 import Time from './time'
@@ -16,10 +17,16 @@ import Time from './time'
 export class Times extends Component {
   constructor(props) {
     super(props)
-
+    const { times } = this.props
     this.state = {
-      ...this.getDefaultValue(),
-      autoUpdate: true,
+      start: times.length
+        ? moment(times[times.length - 1].end)
+        : moment().startOf('day'),
+      end: moment(),
+      visible: {
+        start: false,
+        end: false,
+      },
     }
 
     this.onPress = this._onPress.bind(this)
@@ -30,34 +37,49 @@ export class Times extends Component {
     this.autoUpdate()
   }
 
-  _autoUpdate() {
-    if (!this.state.autoUpdate) return
+  componentWillUnmount() {
+    clearTimeout(this.autoUpdateTimeout)
+  }
 
+  _autoUpdate() {
     this.setState(
       {
         end: moment(),
       },
-      () => setTimeout(this.autoUpdate, 1000)
+      () => (this.autoUpdateTimeout = setTimeout(this.autoUpdate, 1000))
     )
-  }
-
-  getDefaultValue() {
-    const { times } = this.props
-    return {
-      start: times.length
-        ? moment(times[times.length - 1].time)
-        : moment().startOf('day'),
-      end: moment(),
-    }
   }
 
   renderTimes() {
     return this.props.times.map(time => <Time key={time.start} {...time} />)
   }
 
-  onChangeText(field, value) {
+  onChangeDateTime(picker, value) {
+    if (picker === 'end') {
+      clearTimeout(this.autoUpdateTimeout)
+    }
+
     this.setState({
-      [field]: value,
+      [picker]: moment(value),
+    })
+    this.hideDateTime(picker)
+  }
+
+  hideDateTime(picker) {
+    this.setState({
+      visible: {
+        ...this.state.visible,
+        [picker]: false,
+      },
+    })
+  }
+
+  showDateTime(picker) {
+    this.setState({
+      visible: {
+        ...this.state.visible,
+        [picker]: true,
+      },
     })
   }
 
@@ -65,11 +87,13 @@ export class Times extends Component {
     const { start, end } = this.state
     this.props.addTime({ start, end })
     this.setState({
-      ...this.getDefaultValue(),
+      start: end,
     })
+    this.autoUpdate()
   }
 
   render() {
+    const { visible } = this.state
     const list = this.renderTimes()
     const start = this.state.start.format('HH:mm')
     const end = this.state.end.format('HH:mm')
@@ -78,16 +102,32 @@ export class Times extends Component {
       <View>
         <View>
           <Text>Chilling since: </Text>
-          <TextInput
+          <TouchableOpacity
             value={start}
-            onChangeText={this.onChangeText.bind(this, 'start')}
+            onPress={this.showDateTime.bind(this, 'start')}
+          >
+            <Text>{start}</Text>
+          </TouchableOpacity>
+          <DateTimePicker
+            mode="time"
+            isVisible={visible.start}
+            onConfirm={this.onChangeDateTime.bind(this, 'start')}
+            onCancel={this.hideDateTime.bind(this, 'start')}
           />
         </View>
         <View>
           <Text>til: </Text>
-          <TextInput
+          <TouchableOpacity
             value={end}
-            onChangeText={this.onChangeText.bind(this, 'end')}
+            onPress={this.showDateTime.bind(this, 'end')}
+          >
+            <Text>{end}</Text>
+          </TouchableOpacity>
+          <DateTimePicker
+            mode="time"
+            isVisible={visible.end}
+            onConfirm={this.onChangeDateTime.bind(this, 'end')}
+            onCancel={this.hideDateTime.bind(this, 'end')}
           />
         </View>
         <TouchableOpacity
