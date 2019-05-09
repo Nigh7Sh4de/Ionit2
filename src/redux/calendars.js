@@ -36,8 +36,8 @@ export function getGoogleCalendarList() {
 const initialState = {
   data: [],
   settings: {
-    incoming: {},
-    outgoing: {},
+    incoming: [],
+    outgoing: null,
   },
 }
 

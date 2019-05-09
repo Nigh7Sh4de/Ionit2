@@ -16,9 +16,24 @@ export class Login extends Component {
   constructor(props) {
     super(props)
 
+    const { settings } = this.props
+
+    console.log({ settings })
+
     this.signIn = this._signIn.bind(this)
+    const incoming = {}
+    for (let key of settings.incoming) {
+      incoming[key] = true
+    }
+    const outgoing = {
+      [settings.outgoing]: true,
+    }
+
     this.state = {
-      settings: props.settings,
+      settings: {
+        incoming,
+        outgoing,
+      },
       isSigninInProgress: false,
     }
   }
@@ -71,15 +86,36 @@ export class Login extends Component {
     }
   }
 
-  onValueChange(group, id, value) {
+  setSettings() {
+    const { settings } = this.state
+    const incoming = Object.keys(settings.incoming).filter(
+      calendar => settings.incoming[calendar]
+    )
+    const outgoing = Object.keys(settings.outgoing).find(
+      calendar => settings.outgoing[calendar]
+    )
+    this.props.setSettings({ incoming, outgoing })
+  }
+
+  onIncomingChange(id, value) {
     const settings = {
       ...this.state.settings,
-      [group]: {
-        ...this.state.settings[group],
+      incoming: {
+        ...this.state.settings.incoming,
         [id]: value,
       },
     }
-    this.setState({ settings }, () => this.props.setSettings(settings))
+    this.setState({ settings }, this.setSettings)
+  }
+
+  onOutgoingChange(id, value) {
+    const settings = {
+      ...this.state.settings,
+      outgoing: {
+        [id]: value,
+      },
+    }
+    this.setState({ settings }, this.setSettings)
   }
 
   render() {
@@ -90,11 +126,11 @@ export class Login extends Component {
       >
         <Text>{calendar.summary}</Text>
         <Switch
-          onValueChange={this.onValueChange.bind(this, 'incoming', calendar.id)}
+          onValueChange={this.onIncomingChange.bind(this, calendar.id)}
           value={this.state.settings.incoming[calendar.id]}
         />
         <Switch
-          onValueChange={this.onValueChange.bind(this, 'outgoing', calendar.id)}
+          onValueChange={this.onOutgoingChange.bind(this, calendar.id)}
           value={this.state.settings.outgoing[calendar.id]}
         />
       </View>

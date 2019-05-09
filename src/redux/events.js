@@ -16,9 +16,7 @@ export function getGoogleCalendarEvents(start, end) {
     const timeMin = moment(start).startOf('day')
     const timeMax = moment(end || start).endOf('day')
     let events = []
-    for (let id in settings.incoming) {
-      if (!settings.incoming[id]) continue
-
+    for (let id of settings.incoming) {
       const response = await fetch(
         `https://www.googleapis.com/calendar/v3/calendars/${id}/events?timeMin=${timeMin.toISOString()}&timeMax=${timeMax.toISOString()}&singleEvents=true`,
         {
@@ -38,10 +36,10 @@ export function getGoogleCalendarEvents(start, end) {
 
 export function createGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
-    // const { settings } = getState().calendars
+    const { outgoing } = getState().calendars.settings
     const { accessToken } = getState().users.data
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${'primary'}/events`,
+      `https://www.googleapis.com/calendar/v3/calendars/${outgoing}/events`,
       {
         method: 'POST',
         headers: {
