@@ -120,7 +120,7 @@ export class NewEvent extends Component {
       await this.props.updateGoogleCalendarEvent({
         ...event,
         id: foundEvent.id,
-        calendarId: foundEvent.calendarId,
+        calendar: foundEvent.calendar,
       })
     } else {
       await this.props.createGoogleCalendarEvent(event)

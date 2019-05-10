@@ -1,13 +1,46 @@
-import { GoogleSignin, statusCodes } from 'react-native-google-signin'
+import Google from './google'
 
 const SET_USER = 'SET_USER'
 
 export function initialize() {
-  GoogleSignin.configure({
-    webClientId:
-      '766343695982-orlkjjjl38772sjtrumgj4ak2daf95vg.apps.googleusercontent.com',
-    offlineAccess: true,
-  })
+  return dispatch => {
+    try {
+      Google.configure()
+    } catch (error) {
+      console.error(error)
+      // dispatch(setError(error))
+    }
+  }
+}
+
+export function signIn() {
+  return dispatch => {
+    let user = {}
+
+    try {
+      user = Google.signIn()
+    } catch (error) {
+      console.error(error)
+      //dispatch(setError(error))
+    }
+
+    return user
+  }
+}
+
+export function signInSilently() {
+  return async dispatch => {
+    let user = {}
+
+    try {
+      user = Google.signInSilently()
+    } catch (error) {
+      console.error(error)
+      // dispatch(setError(error))
+    }
+
+    return user
+  }
 }
 
 export function setUser(user) {

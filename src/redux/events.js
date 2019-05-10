@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { getEvents } from './google'
 
 export const ADD_EVENTS = 'ADD_EVENTS'
 
@@ -12,32 +13,31 @@ export function addEvents(events) {
 export function getGoogleCalendarEvents(start, end) {
   return async (dispatch, getState) => {
     const { settings } = getState().calendars
-    const { accessToken } = getState().users.data
-    const timeMin = moment(start).startOf('day')
-    const timeMax = moment(end || start).endOf('day')
+    const timeMin = moment(start)
+      .startOf('day')
+      .toISOString()
+    const timeMax = moment(end || start)
+      .endOf('day')
+      .toISOString()
+
     let events = []
-    for (let id of settings.incoming) {
-      const response = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${id}/events?timeMin=${timeMin.toISOString()}&timeMax=${timeMax.toISOString()}&singleEvents=true`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      )
-      newEvents = await response.json()
-      if (newEvents.items) {
-        events = events.concat(
-          newEvents.items.map(event => ({
-            ...event,
-            calendarId: id,
-          }))
-        )
+    for (let calendar of settings.incoming) {
+      let newEvents = {}
+      try {
+        newEvents = await getEvents({ calendar, timeMin, timeMax })
+        console.log({ newEvents })
+      } catch (error) {
+        console.error(error)
+        // dispatch(setError(error))
       }
+      events = events.concat(
+        newEvents.map(event => ({
+          ...event,
+          calendar,
+        }))
+      )
     }
-    dispatch(addEvents(events, { timeMin, timeMax }))
+    dispatch(addEvents(events))
   }
 }
 
@@ -64,12 +64,12 @@ export function createGoogleCalendarEvent(event) {
 export function updateGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { accessToken } = getState().users.data
-    const { calendarId } = event
+    const { calendar } = event
 
     console.log({ event })
 
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events/${
+      `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${
         event.id
       }`,
       {
