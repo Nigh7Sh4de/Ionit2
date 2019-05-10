@@ -1,8 +1,4 @@
-import {
-  GoogleSigninButton,
-  GoogleSignin,
-  statusCodes,
-} from 'react-native-google-signin'
+import { GoogleSignin } from 'react-native-google-signin'
 
 /**
  * On launch
@@ -54,4 +50,37 @@ export async function getEvents({ calendar, timeMin, timeMax }) {
   const error = ({ items } = await response.json())
   if (items) return items
   else throw error
+}
+
+export async function createEvent({ calendar, event }) {
+  const { accessToken } = await signInSilently()
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(event),
+    }
+  )
+  return await response.json()
+}
+
+export async function patchEvent({ calendar, event }) {
+  const { accessToken } = await signInSilently()
+  const { id } = event
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${id}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(event),
+    }
+  )
+  return await response.json()
 }

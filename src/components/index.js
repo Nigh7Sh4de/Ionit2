@@ -11,6 +11,7 @@ import reducers from '../redux'
 
 import Nav from './nav'
 import Login from './login'
+import Settings from './settings'
 import Events from './events'
 import NewEvent from './events/new'
 import Times from './times'
@@ -44,6 +45,7 @@ export default class App extends Component {
                 <Nav />
                 <Switch>
                   <Route exact path="/" component={Login} />
+                  <Route exact path="/settings" component={Settings} />
                   <Route exact path="/events" component={Events} />
                   <Route exact path="/events/:id" component={NewEvent} />
                   <Route exact path="/times" component={Times} />

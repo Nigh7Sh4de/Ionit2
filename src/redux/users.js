@@ -1,4 +1,4 @@
-import Google from './google'
+import * as Google from './google'
 
 const SET_USER = 'SET_USER'
 
@@ -15,31 +15,25 @@ export function initialize() {
 
 export function signIn() {
   return dispatch => {
-    let user = {}
-
     try {
       user = Google.signIn()
+      dispatch(setUser(user))
     } catch (error) {
       console.error(error)
       //dispatch(setError(error))
     }
-
-    return user
   }
 }
 
 export function signInSilently() {
   return async dispatch => {
-    let user = {}
-
     try {
-      user = Google.signInSilently()
+      user = await Google.signInSilently()
+      dispatch(setUser(user))
     } catch (error) {
       console.error(error)
       // dispatch(setError(error))
     }
-
-    return user
   }
 }
 
@@ -52,11 +46,13 @@ export function setUser(user) {
 
 const initialState = {
   data: {},
+  auth: false,
 }
+
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case SET_USER:
-      return { ...state, data: action.user }
+      return { ...state, data: action.user, auth: true }
     default:
       return state
   }

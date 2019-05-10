@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { getEvents } from './google'
+import { getEvents, createEvent, patchEvent } from './google'
 
 export const ADD_EVENTS = 'ADD_EVENTS'
 
@@ -44,46 +44,16 @@ export function getGoogleCalendarEvents(start, end) {
 export function createGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { outgoing } = getState().calendars.settings
-    const { accessToken } = getState().users.data
-    const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${outgoing}/events`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(event),
-      }
-    )
-    const result = await response.json()
-    console.log({ result })
+    const response = await createEvent({ calendar: outgoing, event })
+    //TODO: deal with response errors
   }
 }
 
 export function updateGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
-    const { accessToken } = getState().users.data
     const { calendar } = event
-
-    console.log({ event })
-
-    const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${
-        event.id
-      }`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(event),
-      }
-    )
-    console.log({ response })
-    const result = await response.json()
-    console.log({ result })
+    const response = await patchEvent({ calendar, event })
+    //TODO: deal with response errors
   }
 }
 
