@@ -25,7 +25,6 @@ export class Login extends Component {
 
   render() {
     const { auth } = this.props
-    console.log({ auth })
     if (auth) {
       return <Redirect to="/settings" />
     }

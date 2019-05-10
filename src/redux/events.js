@@ -22,7 +22,7 @@ export function getGoogleCalendarEvents(start, end) {
 
     let events = []
     for (let calendar of settings.incoming) {
-      let newEvents = {}
+      let newEvents = []
       try {
         newEvents = await getEvents({ calendar, timeMin, timeMax })
         console.log({ newEvents })

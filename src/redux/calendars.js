@@ -1,3 +1,5 @@
+import { getCalendars } from './google'
+
 export const SET_CALENDARS = 'SET_CALENDARS'
 export const SET_SETTINGS = 'SET_SETTINGS'
 
@@ -16,20 +18,9 @@ export function setSettings(settings) {
 }
 
 export function getGoogleCalendarList() {
-  return async (dispatch, getState) => {
-    const { accessToken } = getState().users.data
-    const response = await fetch(
-      'https://www.googleapis.com/calendar/v3/users/me/calendarList',
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-    const calendars = await response.json()
-    if (calendars.items) dispatch(setCalendars(calendars.items))
+  return async dispatch => {
+    const calendars = await getCalendars()
+    dispatch(setCalendars(calendars))
   }
 }
 

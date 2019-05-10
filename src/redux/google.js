@@ -22,17 +22,29 @@ export async function configure() {
 
 export async function signInSilently() {
   await GoogleSignin.hasPlayServices()
-  const isSignedIn = await GoogleSignin.isSignedIn()
-  if (isSignedIn) {
-    return await GoogleSignin.getCurrentUser()
-  } else {
-    return await GoogleSignin.signInSilently()
-  }
+  return await GoogleSignin.signInSilently()
 }
 
 export async function signIn() {
   await GoogleSignin.hasPlayServices()
   return await GoogleSignin.signIn()
+}
+
+export async function getCalendars() {
+  const { accessToken } = await signInSilently()
+  const response = await fetch(
+    'https://www.googleapis.com/calendar/v3/users/me/calendarList',
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
+  const calendars = await response.json()
+  if (calendars.items) return calendars.items
+  else throw calendars
 }
 
 export async function getEvents({ calendar, timeMin, timeMax }) {
