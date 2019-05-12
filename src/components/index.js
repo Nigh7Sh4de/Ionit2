@@ -20,6 +20,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 const persistConfig = {
   key: 'ionit',
   storage,
+  blacklist: ['users'],
 }
 
 const store = createStore(

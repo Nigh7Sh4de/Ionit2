@@ -14,9 +14,9 @@ export function initialize() {
 }
 
 export function signIn() {
-  return dispatch => {
+  return async dispatch => {
     try {
-      user = Google.signIn()
+      user = await Google.signIn()
       dispatch(setUser(user))
     } catch (error) {
       console.error(error)
@@ -46,13 +46,12 @@ export function setUser(user) {
 
 const initialState = {
   data: {},
-  auth: false,
 }
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case SET_USER:
-      return { ...state, data: action.user, auth: true }
+      return { ...state, data: action.user }
     default:
       return state
   }

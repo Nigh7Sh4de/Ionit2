@@ -24,8 +24,8 @@ export class Login extends Component {
   }
 
   render() {
-    const { auth } = this.props
-    if (auth) {
+    const { accessToken } = this.props.user
+    if (accessToken) {
       return <Redirect to="/settings" />
     }
 
@@ -44,7 +44,7 @@ export class Login extends Component {
 
 function mapStateToProps(state) {
   return {
-    auth: state.users.auth,
+    user: state.users.data,
   }
 }
 
