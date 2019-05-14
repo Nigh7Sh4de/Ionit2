@@ -11,7 +11,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 
-import { addTime } from '../../redux/times'
+import { addTime, setTempStart } from '../../redux/times'
 import Time from './time'
 
 export class Times extends Component {
@@ -67,6 +67,8 @@ export class Times extends Component {
   onChangeDateTime(picker, value) {
     if (picker === 'end') {
       clearTimeout(this.autoUpdateTimeout)
+    } else {
+      this.props.setTempStart(value)
     }
 
     this.setState({
@@ -103,9 +105,10 @@ export class Times extends Component {
   }
 
   render() {
-    const { visible } = this.state
+    const { tempStart } = this.props
+    const { visible, end } = this.state
+    const start = tempStart ? moment(tempStart) : this.state.start
     const list = this.renderTimes()
-    const { start, end } = this.state
     const _start = start.format('HH:mm')
     const _end = end.format('HH:mm')
 
@@ -164,11 +167,12 @@ export class Times extends Component {
 function mapStateToProps(state) {
   return {
     times: state.times.data,
+    tempStart: state.times.tempStart,
   }
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ addTime }, dispatch)
+  return bindActionCreators({ addTime, setTempStart }, dispatch)
 }
 
 export default connect(
