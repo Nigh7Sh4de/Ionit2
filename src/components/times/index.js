@@ -41,6 +41,16 @@ export class Times extends Component {
     clearTimeout(this.autoUpdateTimeout)
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      (this.state.visible.start && nextState.visible.start) ||
+      (this.state.visible.end && nextState.visible.end)
+    ) {
+      return false
+    }
+    return true
+  }
+
   _autoUpdate() {
     this.setState(
       {
