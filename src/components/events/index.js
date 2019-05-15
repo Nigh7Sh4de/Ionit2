@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-native'
 import { bindActionCreators } from 'redux'
@@ -128,7 +128,7 @@ export class Events extends Component {
     return (
       <View>
         <Text>Events!</Text>
-        <View>{events}</View>
+        <ScrollView>{events}</ScrollView>
       </View>
     )
   }
