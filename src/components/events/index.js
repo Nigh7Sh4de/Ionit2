@@ -30,11 +30,18 @@ export class Events extends Component {
   }
 
   renderEvents() {
-    const events = this.props.events.sort(
-      (a, b) =>
-        moment(a.start.dateTime || a.start.date) -
-        moment(b.start.dateTime || b.start.date)
-    )
+    const today = moment()
+    const events = this.props.events
+      .filter(
+        event =>
+          moment(event.start.dateTime).isSame(today, 'day') ||
+          moment(event.end.dateTime).isSame(today, 'day')
+      )
+      .sort(
+        (a, b) =>
+          moment(a.start.dateTime || a.start.date) -
+          moment(b.start.dateTime || b.start.date)
+      )
     if (!events.length) {
       return <Text>You have no events!</Text>
     }

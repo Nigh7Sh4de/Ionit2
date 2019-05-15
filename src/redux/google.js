@@ -80,6 +80,21 @@ export async function createEvent({ calendar, event }) {
   return await response.json()
 }
 
+export async function deleteEvent({ calendar, event: { id } }) {
+  const { accessToken } = await signInSilently()
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${id}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
+  return await response.json()
+}
+
 export async function patchEvent({ calendar, event }) {
   const { accessToken } = await signInSilently()
   const { id } = event

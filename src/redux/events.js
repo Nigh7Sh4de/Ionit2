@@ -1,12 +1,14 @@
 import moment from 'moment'
-import { getEvents, createEvent, patchEvent } from './google'
+import { getEvents, createEvent, patchEvent, deleteEvent } from './google'
 
 export const ADD_EVENTS = 'ADD_EVENTS'
 
-export function addEvents(events) {
+export function addEvents(events, timeMin, timeMax) {
   return {
     type: ADD_EVENTS,
     events,
+    timeMin,
+    timeMax,
   }
 }
 
@@ -17,7 +19,8 @@ export function getGoogleCalendarEvents(start, end) {
       .startOf('day')
       .toISOString()
     const timeMax = moment(end || start)
-      .endOf('day')
+      .startOf('day')
+      .add(1, 'day')
       .toISOString()
 
     let events = []
@@ -37,7 +40,7 @@ export function getGoogleCalendarEvents(start, end) {
         }))
       )
     }
-    dispatch(addEvents(events))
+    dispatch(addEvents(events, timeMin, timeMax))
   }
 }
 
@@ -57,6 +60,14 @@ export function updateGoogleCalendarEvent(event) {
   }
 }
 
+export function deleteGoogleCalendarEvent(event) {
+  return async (dispatch, getState) => {
+    const { calendar } = event
+    const response = await deleteEvent({ calendar, event })
+    //TODO: deal with response errors
+  }
+}
+
 const initialState = {
   data: [],
 }
@@ -66,20 +77,18 @@ export default function reducer(state = initialState, action) {
     case ADD_EVENTS:
       return {
         ...state,
-        data: massageEventsResponse(state.data, action.events),
+        data: massageEventsResponse(state, action),
       }
     default:
       return state
   }
 }
 
-function massageEventsResponse(events, newEvents) {
-  const all = [...newEvents, ...events]
-  const seen = {}
-  return all.filter(event => {
-    if (!event.start.dateTime) return false
-    if (seen[event.id] === true) return false
-    seen[event.id] = true
-    return true
-  })
+function massageEventsResponse({ data }, { events, timeMin, timeMax }) {
+  return [
+    ...events.filter(event => event.start.dateTime),
+    ...data.filter(
+      event => event.end.dateTime <= timeMin || event.start.dateTime >= timeMax
+    ),
+  ]
 }

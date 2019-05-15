@@ -10,6 +10,7 @@ import queryString from 'query-string'
 import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
+  deleteGoogleCalendarEvent,
 } from '../../redux/events'
 
 export class NewEvent extends Component {
@@ -57,6 +58,7 @@ export class NewEvent extends Component {
     }
 
     this.onPress = this._onPress.bind(this)
+    this.delete = this._delete.bind(this)
   }
 
   onChangeText(field, value) {
@@ -87,6 +89,20 @@ export class NewEvent extends Component {
         ...this.state.visible,
         [picker]: true,
       },
+    })
+  }
+
+  async _delete() {
+    this.setState({
+      loading: true,
+    })
+
+    const { foundEvent } = this.state
+    await this.props.deleteGoogleCalendarEvent(foundEvent)
+
+    this.setState({
+      loading: false,
+      done: true,
     })
   }
 
@@ -142,12 +158,15 @@ export class NewEvent extends Component {
       summary,
       description,
       location,
+      foundEvent,
     } = this.state
     const _start = start.format('YYYY-MM-DD HH:mm')
     const _end = end.format('YYYY-MM-DD HH:mm')
 
     if (loading) return <Text>Loading...</Text>
     else if (done) return <Redirect to="/events" />
+
+    const verb = foundEvent ? 'Update' : 'Create'
 
     return (
       <View>
@@ -200,8 +219,13 @@ export class NewEvent extends Component {
           />
         </View>
         <TouchableOpacity onPress={this.onPress}>
-          <Text>+ Add</Text>
+          <Text>{verb}</Text>
         </TouchableOpacity>
+        {foundEvent && (
+          <TouchableOpacity onPress={this.delete}>
+            <Text>Delete</Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }
@@ -215,7 +239,11 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createGoogleCalendarEvent, updateGoogleCalendarEvent },
+    {
+      createGoogleCalendarEvent,
+      updateGoogleCalendarEvent,
+      deleteGoogleCalendarEvent,
+    },
     dispatch
   )
 }
