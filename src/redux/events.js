@@ -2,6 +2,7 @@ import moment from 'moment'
 import { getEvents, createEvent, patchEvent, deleteEvent } from './google'
 
 export const ADD_EVENTS = 'ADD_EVENTS'
+export const FETCH_DELAY = 60 * 1000
 
 export function addEvents(events, timeMin, timeMax) {
   return {
@@ -12,9 +13,10 @@ export function addEvents(events, timeMin, timeMax) {
   }
 }
 
-export function getGoogleCalendarEvents(start, end) {
+export function getGoogleCalendarEvents({ start, end }) {
   return async (dispatch, getState) => {
     const { settings } = getState().calendars
+    const { lastFetch } = getState().events
     const timeMin = moment(start)
       .startOf('day')
       .toISOString()
@@ -23,12 +25,19 @@ export function getGoogleCalendarEvents(start, end) {
       .add(1, 'day')
       .toISOString()
 
+    if (
+      lastFetch.timeCalled <= moment().add(FETCH_DELAY, 's') &&
+      lastFetch.timeMin <= timeMin &&
+      lastFetch.timeMax >= timeMax
+    ) {
+      return
+    }
+
     let events = []
     for (let calendar of settings.incoming) {
       let newEvents = []
       try {
         newEvents = await getEvents({ calendar, timeMin, timeMax })
-        console.log({ newEvents })
       } catch (error) {
         console.error(error)
         // dispatch(setError(error))
@@ -70,25 +79,38 @@ export function deleteGoogleCalendarEvent(event) {
 
 const initialState = {
   data: [],
+  lastFetch: {},
 }
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case ADD_EVENTS:
-      return {
-        ...state,
-        data: massageEventsResponse(state, action),
-      }
+      return massageEventsResponse(state, action)
     default:
       return state
   }
 }
 
-function massageEventsResponse({ data }, { events, timeMin, timeMax }) {
-  return [
-    ...events.filter(event => event.start.dateTime),
+function massageEventsResponse(state, { events, timeMin, timeMax }) {
+  let { data, lastFetch } = state
+  data = [
     ...data.filter(
       event => event.end.dateTime <= timeMin || event.start.dateTime >= timeMax
     ),
+    ...events.filter(event => event.start.dateTime),
   ]
+
+  return {
+    ...state,
+    data,
+    lastFetch: {
+      timeMin: lastFetch.timeMin
+        ? moment.min(moment(timeMin), moment(lastFetch.timeMin))
+        : timeMin,
+      timeMax: lastFetch.timeMax
+        ? moment.max(moment(timeMax), moment(lastFetch.timeMax))
+        : timeMax,
+      timeCalled: new Date(),
+    },
+  }
 }

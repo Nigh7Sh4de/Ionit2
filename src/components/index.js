@@ -20,7 +20,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 const persistConfig = {
   key: 'ionit',
   storage,
-  blacklist: ['users'],
+  blacklist: ['users', 'events.lastFetch'],
 }
 
 const store = createStore(
@@ -34,14 +34,16 @@ export default class App extends Component {
     return (
       <View
         style={{
-          backgroundColor: 'white',
-          flex: 1,
-          fontSize: 25,
+          flexGrow: 1,
         }}
       >
         <Provider store={store}>
           <PersistGate persistor={persistor}>
-            <SafeAreaView>
+            <SafeAreaView
+              style={{
+                flex: 1,
+              }}
+            >
               <Router>
                 <Nav />
                 <Switch>
