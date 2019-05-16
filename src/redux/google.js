@@ -92,7 +92,7 @@ export async function deleteEvent({ calendar, event: { id } }) {
       },
     }
   )
-  return await response.json()
+  return response.ok
 }
 
 export async function patchEvent({ calendar, event }) {

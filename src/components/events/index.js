@@ -63,6 +63,48 @@ export class Events extends Component {
           moment(a.start.dateTime || a.start.date) -
           moment(b.start.dateTime || b.start.date)
       )
+
+      if (!result[date].length) {
+        result[date].push({
+          blank: true,
+          id: start.toISOString(),
+          summary: '',
+          start: { dateTime: start.toISOString() },
+          end: { dateTime: end.add(1, 'day').toISOString() },
+        })
+      }
+
+      let start = moment(date).startOf('day')
+      let end = moment(date).startOf('day')
+
+      for (let i = 0; i < result[date].length; i++) {
+        const next = moment(result[date][i].start.dateTime)
+        if (next > end) {
+          result[date].splice(i++, 0, {
+            blank: true,
+            id: start.toISOString(),
+            summary: '',
+            start: { dateTime: end.toISOString() },
+            end: { dateTime: next.toISOString() },
+          })
+        }
+        start = next
+        end = moment(result[date][i].end.dateTime)
+      }
+
+      const last = moment(result[date][result[date].length - 1].end.dateTime)
+      end = moment(date)
+        .startOf('day')
+        .add(1, 'day')
+      if (last < end) {
+        result[date].push({
+          blank: true,
+          id: last.toISOString(),
+          summary: '',
+          start: { dateTime: last.toISOString() },
+          end: { dateTime: end.toISOString() },
+        })
+      }
     }
     return result
   }
@@ -94,7 +136,19 @@ export class Events extends Component {
         <Text>Events!</Text>
         <Agenda
           items={groupedEvents}
-          renderItem={item => <AgendaItem item={item} />}
+          renderDay={({ dateString } = {}) => (
+            <View
+              style={{
+                marginTop: dateString && 20,
+                width: 50,
+                paddingHorizontal: 10,
+                marginRight: 5,
+              }}
+            >
+              {dateString && <Text>{moment(dateString).format('MMM DD')}</Text>}
+            </View>
+          )}
+          renderItem={(item, first) => <AgendaItem item={item} first={first} />}
           renderEmptyDate={date => <Text>No events this day</Text>}
           rowHasChanged={(r1, r2) => JSON.stringify(r1) !== JSON.stringify(r2)}
           loadItemsForMonth={this.fetchEvents}
