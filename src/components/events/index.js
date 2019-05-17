@@ -54,6 +54,7 @@ export class Events extends Component {
 
     events.forEach(event => {
       const date = moment(event.start.dateTime).format('YYYY-MM-DD')
+      if (!result[date]) result[date] = []
       result[date].push(event)
     })
 
@@ -64,6 +65,9 @@ export class Events extends Component {
           moment(b.start.dateTime || b.start.date)
       )
 
+      let start = moment(date).startOf('day')
+      let end = moment(date).startOf('day')
+
       if (!result[date].length) {
         result[date].push({
           blank: true,
@@ -73,9 +77,6 @@ export class Events extends Component {
           end: { dateTime: end.add(1, 'day').toISOString() },
         })
       }
-
-      let start = moment(date).startOf('day')
-      let end = moment(date).startOf('day')
 
       for (let i = 0; i < result[date].length; i++) {
         const next = moment(result[date][i].start.dateTime)
