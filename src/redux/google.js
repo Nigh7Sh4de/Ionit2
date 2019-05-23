@@ -1,16 +1,5 @@
 import { GoogleSignin } from 'react-native-google-signin'
 
-/**
- * On launch
- * configure()
- * //may be called from elsewhere
- */
-
-/**
- * For each google api implementation:
- * 1.
- */
-
 export async function configure() {
   await GoogleSignin.configure({
     scopes: ['https://www.googleapis.com/auth/calendar'],
@@ -45,6 +34,22 @@ export async function getCalendars() {
   const calendars = await response.json()
   if (calendars.items) return calendars.items
   else throw calendars
+}
+
+export async function getColors() {
+  const { accessToken } = await signInSilently()
+  const response = await fetch(
+    'https://www.googleapis.com/calendar/v3/colors',
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
+  const colors = await response.json()
+  return colors
 }
 
 export async function getEvents({ calendar, timeMin, timeMax }) {

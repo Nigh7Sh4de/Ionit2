@@ -6,7 +6,13 @@ import { Link } from 'react-router-native'
 export default class Navbar extends PureComponent {
   render() {
     return (
-      <View style={{ borderBottomWidth: 1, marginBottom: 10 }}>
+      <View
+        style={{
+          borderTopWidth: 1,
+          flexDirection: 'row',
+          justifyContent: 'space-evenly',
+        }}
+      >
         <Link component={TouchableOpacity} to="/">
           <Text>Login</Text>
         </Link>

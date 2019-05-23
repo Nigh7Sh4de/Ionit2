@@ -45,14 +45,20 @@ export default class App extends Component {
               }}
             >
               <Router>
+                <View
+                  style={{
+                    flex: 1,
+                  }}
+                >
+                  <Switch>
+                    <Route exact path="/" component={Login} />
+                    <Route exact path="/settings" component={Settings} />
+                    <Route exact path="/events" component={Events} />
+                    <Route exact path="/events/:id" component={NewEvent} />
+                    <Route exact path="/times" component={Times} />
+                  </Switch>
+                </View>
                 <Nav />
-                <Switch>
-                  <Route exact path="/" component={Login} />
-                  <Route exact path="/settings" component={Settings} />
-                  <Route exact path="/events" component={Events} />
-                  <Route exact path="/events/:id" component={NewEvent} />
-                  <Route exact path="/times" component={Times} />
-                </Switch>
               </Router>
             </SafeAreaView>
           </PersistGate>

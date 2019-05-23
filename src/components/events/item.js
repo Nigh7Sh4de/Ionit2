@@ -2,8 +2,10 @@ import React, { PureComponent } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { Redirect } from 'react-router-native'
 import moment from 'moment'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
-export default class Item extends PureComponent {
+export class Item extends PureComponent {
   constructor(props) {
     super(props)
 
@@ -20,9 +22,10 @@ export default class Item extends PureComponent {
   }
 
   render() {
-    const { item } = this.props
-    const { summary, id, start, end, blank } = item
+    const { item, colors } = this.props
+    const { summary, id, start, end, colorId, blank } = item
     const { selected } = this.state
+    const color = colors[colorId] || {}
     if (selected) {
       return (
         <Redirect
@@ -34,35 +37,60 @@ export default class Item extends PureComponent {
       )
     }
 
-    const _start = moment(start.dateTime).format('H:mm')
-    const _end = moment(end.dateTime).format('H:mm')
+    const _start = moment(start.dateTime)
+    const _end = moment(end.dateTime)
+    const minutes = _end.diff(_start, 'minutes')
+    const paddingVertical = Math.min(~~(minutes / 60) * 10, 30)
 
     return (
       <TouchableOpacity
         onPress={this._editEvent.bind(this)}
         style={{
           flexDirection: 'row',
-          flex: 1,
-          marginBottom: 5,
+          marginBottom: 15,
+          paddingVertical: 10,
+          backgroundColor: color.background || 'lightgray',
         }}
       >
-        <View style={{ width: 50, alignItems: 'flex-end' }}>
-          <Text>{_start}</Text>
-          <Text>{_end}</Text>
+        <View style={{ width: 50, alignItems: 'flex-end', paddingVertical }}>
+          <Text>{_start.format('H:mm')}</Text>
+          <Text>{_end.format('H:mm')}</Text>
         </View>
         <View
           style={{
             flex: 1,
-            marginLeft: 5,
-            borderLeftWidth: 6,
-            paddingLeft: 5,
-            borderLeftColor: blank ? 'lightgray' : 'grey',
+            marginHorizontal: 5,
+            paddingLeft: 10,
+            paddingVertical,
+            borderLeftWidth: 1,
+            borderLeftColor: color.foreground || 'black',
             justifyContent: 'center',
           }}
         >
-          <Text>{summary}</Text>
+          <Text
+            style={{
+              color: color.foreground || 'black',
+            }}
+          >
+            {summary}
+          </Text>
         </View>
       </TouchableOpacity>
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    colors: state.colors.event,
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({}, dispatch)
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Item)
