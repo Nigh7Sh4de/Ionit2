@@ -20,7 +20,7 @@ export default class Item extends PureComponent {
   }
 
   render() {
-    const { item, first } = this.props
+    const { item } = this.props
     const { summary, id, start, end, blank } = item
     const { selected } = this.state
     if (selected) {
@@ -34,25 +34,25 @@ export default class Item extends PureComponent {
       )
     }
 
-    const _start = moment(start.dateTime).format('HH:mm')
-    const _end = moment(end.dateTime).format('HH:mm')
+    const _start = moment(start.dateTime).format('H:mm')
+    const _end = moment(end.dateTime).format('H:mm')
 
     return (
       <TouchableOpacity
         onPress={this._editEvent.bind(this)}
         style={{
-          marginTop: first && 20,
           flexDirection: 'row',
           flex: 1,
           marginBottom: 5,
         }}
       >
-        <View>
+        <View style={{ width: 50, alignItems: 'flex-end' }}>
           <Text>{_start}</Text>
           <Text>{_end}</Text>
         </View>
         <View
           style={{
+            flex: 1,
             marginLeft: 5,
             borderLeftWidth: 6,
             paddingLeft: 5,

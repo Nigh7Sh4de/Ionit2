@@ -160,8 +160,8 @@ export class NewEvent extends Component {
       location,
       foundEvent,
     } = this.state
-    const _start = start.format('YYYY-MM-DD HH:mm')
-    const _end = end.format('YYYY-MM-DD HH:mm')
+    const _start = start.format('YYYY-MM-DD H:mm')
+    const _end = end.format('YYYY-MM-DD H:mm')
 
     if (loading) return <Text>Loading...</Text>
     else if (done) return <Redirect to="/events" />

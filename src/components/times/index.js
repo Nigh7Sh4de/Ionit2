@@ -109,8 +109,8 @@ export class Times extends Component {
     const { visible, end } = this.state
     const start = tempStart ? moment(tempStart) : this.state.start
     const list = this.renderTimes()
-    const _start = start.format('HH:mm')
-    const _end = end.format('HH:mm')
+    const _start = start.format('H:mm')
+    const _end = end.format('H:mm')
 
     return (
       <View>

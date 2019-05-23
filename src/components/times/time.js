@@ -17,7 +17,7 @@ export default class Time extends PureComponent {
         }}
       >
         <Text>
-          {moment(start).format('HH:mm:ss')} - {moment(end).format('HH:mm:ss')}
+          {moment(start).format('H:mm:ss')} - {moment(end).format('H:mm:ss')}
         </Text>
       </View>
     )

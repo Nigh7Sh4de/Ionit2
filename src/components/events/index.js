@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { View, Text } from 'react-native'
-import { Agenda } from 'react-native-calendars'
+import { Text, ScrollView } from 'react-native'
+import { ExpandableCalendar, CalendarProvider } from 'react-native-calendars'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-native'
 import { bindActionCreators } from 'redux'
@@ -16,6 +16,7 @@ export class Events extends Component {
     this.state = {
       selected: null,
       items: {},
+      date: moment(),
     }
 
     this.fetchEvents = this._fetchEvents.bind(this)
@@ -39,80 +40,77 @@ export class Events extends Component {
     await this.props.getGoogleCalendarEvents({ start, end })
   }
 
-  groupEventsByDate() {
-    const { events, lastFetch } = this.props
-    const { timeMin, timeMax } = lastFetch
-    const result = {}
-
-    const daysDiff = moment(timeMax).diff(timeMin, 'days')
-    for (let i = 0; i < daysDiff; i++) {
-      const date = moment(timeMin)
-        .add(i, 'days')
-        .format('YYYY-MM-DD')
-      result[date] = []
-    }
-
-    events.forEach(event => {
-      const date = moment(event.start.dateTime).format('YYYY-MM-DD')
-      if (!result[date]) result[date] = []
-      result[date].push(event)
+  onDateChanged = date => {
+    const start = moment(date).startOf('day')
+    const end = moment(date)
+      .startOf('day')
+      .add(1, 'day')
+    this.props.getGoogleCalendarEvents({ start, end })
+    this.setState({
+      date: moment(date),
     })
+  }
 
-    for (let date in result) {
-      result[date] = result[date].sort(
+  renderEvents() {
+    const { events } = this.props
+    const { date } = this.state
+    const result = events
+      .filter(event => moment(event.start.dateTime).isSame(date, 'day'))
+      .sort(
         (a, b) =>
           moment(a.start.dateTime || a.start.date) -
           moment(b.start.dateTime || b.start.date)
       )
 
-      let start = moment(date).startOf('day')
-      let end = moment(date).startOf('day')
+    let start = moment(date).startOf('day')
+    let end = moment(date).startOf('day')
 
-      if (!result[date].length) {
-        result[date].push({
+    if (!result.length) {
+      result.push({
+        blank: true,
+        id: start.toISOString(),
+        summary: '',
+        start: { dateTime: start.toISOString() },
+        end: { dateTime: end.add(1, 'day').toISOString() },
+      })
+    }
+
+    for (let i = 0; i < result.length; i++) {
+      const next = moment(result[i].start.dateTime)
+      if (next > end) {
+        result.splice(i++, 0, {
           blank: true,
           id: start.toISOString(),
           summary: '',
-          start: { dateTime: start.toISOString() },
-          end: { dateTime: end.add(1, 'day').toISOString() },
+          start: { dateTime: end.toISOString() },
+          end: { dateTime: next.toISOString() },
         })
       }
-
-      for (let i = 0; i < result[date].length; i++) {
-        const next = moment(result[date][i].start.dateTime)
-        if (next > end) {
-          result[date].splice(i++, 0, {
-            blank: true,
-            id: start.toISOString(),
-            summary: '',
-            start: { dateTime: end.toISOString() },
-            end: { dateTime: next.toISOString() },
-          })
-        }
-        start = next
-        end = moment(result[date][i].end.dateTime)
-      }
-
-      const last = moment(result[date][result[date].length - 1].end.dateTime)
-      end = moment(date)
-        .startOf('day')
-        .add(1, 'day')
-      if (last < end) {
-        result[date].push({
-          blank: true,
-          id: last.toISOString(),
-          summary: '',
-          start: { dateTime: last.toISOString() },
-          end: { dateTime: end.toISOString() },
-        })
-      }
+      start = next
+      end = moment(result[i].end.dateTime)
     }
-    return result
+
+    const last = moment(result[result.length - 1].end.dateTime)
+    end = moment(date)
+      .startOf('day')
+      .add(1, 'day')
+    if (last < end) {
+      result.push({
+        blank: true,
+        id: last.toISOString(),
+        summary: '',
+        start: { dateTime: last.toISOString() },
+        end: { dateTime: end.toISOString() },
+      })
+    }
+
+    return result.map(event => <AgendaItem key={event.id} item={event} />)
   }
 
   render() {
     const { events } = this.props
-    const { selected } = this.state
+    const { selected, date } = this.state
+
     if (selected) {
       return (
         <Redirect
@@ -126,35 +124,13 @@ export class Events extends Component {
       return <Text>You have no events!</Text>
     }
 
-    const groupedEvents = this.groupEventsByDate()
+    const renderedEvents = this.renderEvents()
 
     return (
-      <View
-        style={{
-          flex: 1,
-        }}
-      >
-        <Text>Events!</Text>
-        <Agenda
-          items={groupedEvents}
-          renderDay={({ dateString } = {}) => (
-            <View
-              style={{
-                marginTop: dateString && 20,
-                width: 50,
-                paddingHorizontal: 10,
-                marginRight: 5,
-              }}
-            >
-              {dateString && <Text>{moment(dateString).format('MMM DD')}</Text>}
-            </View>
-          )}
-          renderItem={(item, first) => <AgendaItem item={item} first={first} />}
-          renderEmptyDate={date => <Text>No events this day</Text>}
-          rowHasChanged={(r1, r2) => JSON.stringify(r1) !== JSON.stringify(r2)}
-          loadItemsForMonth={this.fetchEvents}
-        />
-      </View>
+      <CalendarProvider date={date.toDate()} onDateChanged={this.onDateChanged}>
+        <ExpandableCalendar allowShadow={false} />
+        <ScrollView>{renderedEvents}</ScrollView>
+      </CalendarProvider>
     )
   }
 }
