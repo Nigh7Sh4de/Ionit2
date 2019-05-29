@@ -3,31 +3,43 @@ import { View, Text } from 'react-native'
 import moment from 'moment'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import asCalendarConsumer from 'react-native-calendars/src/expandableCalendar/asCalendarConsumer'
 
 export class Analytics extends PureComponent {
   render() {
-    const { events, colors } = this.props
+    const { events, colors, context } = this.props
     const analytics = {
-      _blank: 0,
+      blank: 0,
     }
+
     events.forEach(event => {
       const hours =
-        moment(event.end.dateTime).diff(event.start.dateTime, 'minutes') / 60
+        moment(
+          moment.min(
+            event.end.dateTime,
+            moment(context.date)
+              .startOf('day')
+              .add(1, 'day')
+          )
+        ).diff(
+          moment.max(event.start.dateTime, moment(context.date).startOf('day')),
+          'minutes'
+        ) / 60
       if (event.blank) {
-        analytics._blank += hours
+        analytics.blank += hours
       } else if (!analytics[event.colorId]) {
         analytics[event.colorId] = hours
       } else {
         analytics[event.colorId] += hours
       }
     })
-    if (!analytics._blank) {
-      delete analytics._blank
+    if (!analytics.blank) {
+      delete analytics.blank
     }
 
     const data = Object.keys(analytics).map(type => {
       let backgroundColor = 'lightgray'
-      if (type === '_blank') {
+      if (type === 'blank') {
         backgroundColor = 'darkgrey'
       } else if (colors[type]) {
         backgroundColor = colors[type].background
@@ -74,4 +86,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Analytics)
+)(asCalendarConsumer(Analytics))
