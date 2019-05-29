@@ -1,10 +1,5 @@
 import React, { Component } from 'react'
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native'
+import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 import { Redirect } from 'react-router-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -59,7 +54,6 @@ export class NewEvent extends Component {
         end: false,
         color: false,
       },
-      done: false,
       loading: false,
       foundEvent,
       ...event,
@@ -117,8 +111,8 @@ export class NewEvent extends Component {
 
     this.setState({
       loading: false,
-      done: true,
     })
+    this.props.history.goBack()
   }
 
   async _onPress() {
@@ -161,8 +155,8 @@ export class NewEvent extends Component {
 
     this.setState({
       loading: false,
-      done: true,
     })
+    this.props.history.goBack()
   }
 
   render() {
@@ -170,7 +164,6 @@ export class NewEvent extends Component {
     const {
       visible,
       loading,
-      done,
       start,
       end,
       summary,
@@ -183,7 +176,6 @@ export class NewEvent extends Component {
     const _end = end.format('YYYY-MM-DD H:mm')
 
     if (loading) return <Text>Loading...</Text>
-    else if (done) return <Redirect to="/events" />
 
     const verb = foundEvent ? 'Update' : 'Create'
 

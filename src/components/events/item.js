@@ -30,7 +30,7 @@ export class Item extends PureComponent {
       return (
         <Redirect
           push
-          to={`/events/${blank ? 'new' : id}?start=${start.dateTime}&end=${
+          to={`/${blank ? 'new' : id}?start=${start.dateTime}&end=${
             end.dateTime
           }`}
         />
