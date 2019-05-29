@@ -58,6 +58,8 @@ export function createGoogleCalendarEvent(event) {
     const { outgoing } = getState().calendars.settings
     const response = await createEvent({ calendar: outgoing, event })
     //TODO: deal with response errors
+
+    dispatch(getGoogleCalendarEvents({ start: event.start.dateTime }))
   }
 }
 
@@ -66,6 +68,8 @@ export function updateGoogleCalendarEvent(event) {
     const { calendar } = event
     const response = await patchEvent({ calendar, event })
     //TODO: deal with response errors
+
+    dispatch(getGoogleCalendarEvents({ start: event.start.dateTime }))
   }
 }
 
@@ -74,6 +78,8 @@ export function deleteGoogleCalendarEvent(event) {
     const { calendar } = event
     const response = await deleteEvent({ calendar, event })
     //TODO: deal with response errors
+
+    dispatch(getGoogleCalendarEvents({ start: event.start.dateTime }))
   }
 }
 
