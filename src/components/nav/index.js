@@ -13,16 +13,44 @@ export default class Navbar extends PureComponent {
           justifyContent: 'space-evenly',
         }}
       >
-        <Link component={TouchableOpacity} to="/">
+        <Link
+          style={{
+            flex: 1,
+            alignItems: 'center',
+          }}
+          component={TouchableOpacity}
+          to="/"
+        >
           <Text>Login</Text>
         </Link>
-        <Link component={TouchableOpacity} to="/events">
+        <Link
+          style={{
+            flex: 1,
+            alignItems: 'center',
+          }}
+          component={TouchableOpacity}
+          to="/events"
+        >
           <Text>Events</Text>
         </Link>
-        <Link component={TouchableOpacity} to="/events/new">
+        <Link
+          style={{
+            flex: 1,
+            alignItems: 'center',
+          }}
+          component={TouchableOpacity}
+          to="/events/new"
+        >
           <Text>New</Text>
         </Link>
-        <Link component={TouchableOpacity} to="/times">
+        <Link
+          style={{
+            flex: 1,
+            alignItems: 'center',
+          }}
+          component={TouchableOpacity}
+          to="/times"
+        >
           <Text>Times</Text>
         </Link>
       </View>

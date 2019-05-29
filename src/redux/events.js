@@ -1,12 +1,12 @@
 import moment from 'moment'
 import { getEvents, createEvent, patchEvent, deleteEvent } from './google'
 
-export const ADD_EVENTS = 'ADD_EVENTS'
+export const SAVE_EVENTS = 'SAVE_EVENTS'
 export const FETCH_DELAY = 60 * 1000
 
-export function addEvents(events, timeMin, timeMax) {
+export function saveEvents(events, timeMin, timeMax) {
   return {
-    type: ADD_EVENTS,
+    type: SAVE_EVENTS,
     events,
     timeMin,
     timeMax,
@@ -49,7 +49,7 @@ export function getGoogleCalendarEvents({ start, end }) {
         }))
       )
     }
-    dispatch(addEvents(events, timeMin, timeMax))
+    dispatch(saveEvents(events, timeMin, timeMax))
   }
 }
 
@@ -90,7 +90,7 @@ const initialState = {
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
-    case ADD_EVENTS:
+    case SAVE_EVENTS:
       return massageEventsResponse(state, action)
     default:
       return state
