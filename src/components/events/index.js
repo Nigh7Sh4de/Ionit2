@@ -8,6 +8,7 @@ import moment from 'moment'
 import { getGoogleCalendarEvents } from '../../redux/events'
 
 import AgendaItem from './item'
+import Analytics from './analytics'
 
 export class Events extends Component {
   constructor(props) {
@@ -51,9 +52,7 @@ export class Events extends Component {
     })
   }
 
-  renderEvents() {
-    const { events } = this.props
-    const { date } = this.state
+  filterEvents(events, date) {
     const result = events
       .filter(event => moment(event.start.dateTime).isSame(date, 'day'))
       .sort(
@@ -104,7 +103,7 @@ export class Events extends Component {
       })
     }
 
-    return result.map(event => <AgendaItem key={event.id} item={event} />)
+    return result
   }
 
   render() {
@@ -124,11 +123,15 @@ export class Events extends Component {
       return <Text>You have no events!</Text>
     }
 
-    const renderedEvents = this.renderEvents()
+    const filteredEvents = this.filterEvents(events, date)
+    const renderedEvents = filteredEvents.map(event => (
+      <AgendaItem key={event.id} item={event} />
+    ))
 
     return (
       <CalendarProvider date={date.toDate()} onDateChanged={this.onDateChanged}>
         <ExpandableCalendar allowShadow={false} />
+        <Analytics events={filteredEvents} />
         <ScrollView>{renderedEvents}</ScrollView>
       </CalendarProvider>
     )

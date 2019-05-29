@@ -26,7 +26,7 @@ export function getGoogleCalendarColors() {
 }
 
 const initialState = {
-  event: [],
+  event: {},
   calendar: {},
 }
 

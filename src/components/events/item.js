@@ -41,6 +41,12 @@ export class Item extends PureComponent {
     const _end = moment(end.dateTime)
     const minutes = _end.diff(_start, 'minutes')
     const paddingVertical = Math.min(~~(minutes / 60) * 10, 30)
+    let backgroundColor = 'lightgray'
+    if (blank) {
+      backgroundColor = 'darkgrey'
+    } else if (colors[colorId]) {
+      backgroundColor = colors[colorId].background
+    }
 
     return (
       <TouchableOpacity
@@ -49,7 +55,7 @@ export class Item extends PureComponent {
           flexDirection: 'row',
           marginBottom: 15,
           paddingVertical: 10,
-          backgroundColor: color.background || 'lightgray',
+          backgroundColor,
         }}
       >
         <View style={{ width: 50, alignItems: 'flex-end', paddingVertical }}>
