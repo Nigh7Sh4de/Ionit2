@@ -1,5 +1,10 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, TextInput } from 'react-native'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native'
 import { Redirect } from 'react-router-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -7,6 +12,7 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
+import Colors from './colors'
 import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
@@ -43,6 +49,7 @@ export class NewEvent extends Component {
         summary: foundEvent.summary,
         description: foundEvent.description,
         location: foundEvent.location,
+        colorId: foundEvent.colorId,
       }
     }
 
@@ -50,6 +57,7 @@ export class NewEvent extends Component {
       visible: {
         start: false,
         end: false,
+        color: false,
       },
       done: false,
       loading: false,
@@ -59,6 +67,13 @@ export class NewEvent extends Component {
 
     this.onPress = this._onPress.bind(this)
     this.delete = this._delete.bind(this)
+  }
+
+  onChangeColor(colorId) {
+    this.setState({
+      colorId,
+    })
+    this.hideDateTime('color')
   }
 
   onChangeText(field, value) {
@@ -114,6 +129,7 @@ export class NewEvent extends Component {
       summary,
       description,
       location,
+      colorId,
     } = this.state
 
     const event = {
@@ -126,6 +142,7 @@ export class NewEvent extends Component {
       summary,
       description,
       location,
+      colorId,
     }
 
     this.setState({
@@ -149,6 +166,7 @@ export class NewEvent extends Component {
   }
 
   render() {
+    const { colors } = this.props
     const {
       visible,
       loading,
@@ -158,6 +176,7 @@ export class NewEvent extends Component {
       summary,
       description,
       location,
+      colorId,
       foundEvent,
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
@@ -218,6 +237,24 @@ export class NewEvent extends Component {
             onChangeText={this.onChangeText.bind(this, 'location')}
           />
         </View>
+        <View>
+          <Text>Color</Text>
+          <Text>{colorId}</Text>
+          <TouchableOpacity
+            style={{
+              height: 20,
+              width: 100,
+              backgroundColor: colorId ? colors[colorId].background : 'grey',
+            }}
+            onPress={this.showDateTime.bind(this, 'color')}
+          />
+          <Colors
+            visible={visible.color}
+            colors={colors}
+            color={colorId}
+            onChangeColor={this.onChangeColor.bind(this)}
+          />
+        </View>
         <TouchableOpacity onPress={this.onPress}>
           <Text>{verb}</Text>
         </TouchableOpacity>
@@ -234,6 +271,7 @@ export class NewEvent extends Component {
 function mapStateToProps(state) {
   return {
     events: state.events.data,
+    colors: state.colors.event,
   }
 }
 
