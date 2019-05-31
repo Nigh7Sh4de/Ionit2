@@ -48,7 +48,6 @@ export function getGoogleCalendarEvents({ start, end, force }) {
         )
       } catch (error) {
         console.error(error)
-        // dispatch(setError(error))
       }
     }
   }
@@ -57,45 +56,52 @@ export function getGoogleCalendarEvents({ start, end, force }) {
 export function createGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { outgoing } = getState().calendars.settings
-    const response = await createEvent({ calendar: outgoing, event })
-    //TODO: deal with response errors
 
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    try {
+      await createEvent({ calendar: outgoing, event })
+      await dispatch(
+        getGoogleCalendarEvents({
+          start: event.start.dateTime,
+          force: true,
+        })
+      )
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 
 export function updateGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { calendar } = event
-    const response = await patchEvent({ calendar, event })
-    //TODO: deal with response errors
-
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    try {
+      await patchEvent({ calendar, event })
+      await dispatch(
+        getGoogleCalendarEvents({
+          start: event.start.dateTime,
+          force: true,
+        })
+      )
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 
 export function deleteGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { calendar } = event
-    const response = await deleteEvent({ calendar, event })
-    //TODO: deal with response errors
-
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    try {
+      await deleteEvent({ calendar, event })
+      await dispatch(
+        getGoogleCalendarEvents({
+          start: event.start.dateTime,
+          force: true,
+        })
+      )
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 
