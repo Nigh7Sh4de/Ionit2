@@ -11,19 +11,17 @@ import ListEvents from './list'
 
 export class Events extends Component {
   componentDidMount() {
-    if (!this.props.events.length) {
-      const dateString = moment.now()
-      this.fetchEvents({ dateString })
-    }
+    const dateString = moment.now()
+    this.fetchEvents({ dateString })
   }
 
   async fetchEvents({ dateString }) {
     const start = moment(dateString)
-      .startOf('month')
       .subtract(1, 'month')
-    const end = moment(dateString)
       .startOf('month')
+    const end = moment(dateString)
       .add(3, 'month')
+      .startOf('month')
 
     await this.props.getGoogleCalendarEvents({ start, end })
   }
@@ -31,8 +29,8 @@ export class Events extends Component {
   onDateChanged = date => {
     const start = moment(date).startOf('day')
     const end = moment(date)
-      .startOf('day')
       .add(1, 'day')
+      .startOf('day')
 
     this.props.getGoogleCalendarEvents({ start, end })
   }

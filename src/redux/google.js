@@ -1,4 +1,5 @@
 import { GoogleSignin } from 'react-native-google-signin'
+import moment from 'moment'
 
 export async function configure() {
   await GoogleSignin.configure({
@@ -54,6 +55,9 @@ export async function getColors() {
 
 export async function getEvents({ calendar, timeMin, timeMax }) {
   const { accessToken } = await signInSilently()
+
+  timeMin = moment(timeMin).toISOString()
+  timeMax = moment(timeMax).toISOString()
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true`,
     {

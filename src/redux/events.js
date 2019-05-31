@@ -2,7 +2,7 @@ import moment from 'moment'
 import { getEvents, createEvent, patchEvent, deleteEvent } from './google'
 
 export const SAVE_EVENTS = 'SAVE_EVENTS'
-export const FETCH_DELAY = 60 * 1000
+export const FETCH_DELAY = 60
 
 export function saveEvents(events, timeMin, timeMax) {
   return {
@@ -13,43 +13,44 @@ export function saveEvents(events, timeMin, timeMax) {
   }
 }
 
-export function getGoogleCalendarEvents({ start, end }) {
+export function getGoogleCalendarEvents({ start, end, force }) {
   return async (dispatch, getState) => {
     const { settings } = getState().calendars
     const { lastFetch } = getState().events
-    const timeMin = moment(start)
-      .startOf('day')
-      .toISOString()
+    const timeMin = moment(start).startOf('day')
     const timeMax = moment(end || start)
       .startOf('day')
       .add(1, 'day')
-      .toISOString()
+    const delay = moment().subtract(FETCH_DELAY, 's')
 
     if (
-      lastFetch.timeCalled <= moment().add(FETCH_DELAY, 's') &&
-      lastFetch.timeMin <= timeMin &&
-      lastFetch.timeMax >= timeMax
+      !force &&
+      lastFetch.timeCalled &&
+      moment(lastFetch.timeCalled) >= delay &&
+      moment(lastFetch.timeMin) <= timeMin &&
+      moment(lastFetch.timeMax) >= timeMax
     ) {
       return
     }
 
-    let events = []
     for (let calendar of settings.incoming) {
-      let newEvents = []
       try {
-        newEvents = await getEvents({ calendar, timeMin, timeMax })
+        const newEvents = await getEvents({ calendar, timeMin, timeMax })
+        dispatch(
+          saveEvents(
+            newEvents.map(event => ({
+              ...event,
+              calendar,
+            })),
+            timeMin,
+            timeMax
+          )
+        )
       } catch (error) {
         console.error(error)
         // dispatch(setError(error))
       }
-      events = events.concat(
-        newEvents.map(event => ({
-          ...event,
-          calendar,
-        }))
-      )
     }
-    dispatch(saveEvents(events, timeMin, timeMax))
   }
 }
 
@@ -59,7 +60,12 @@ export function createGoogleCalendarEvent(event) {
     const response = await createEvent({ calendar: outgoing, event })
     //TODO: deal with response errors
 
-    dispatch(getGoogleCalendarEvents({ start: event.start.dateTime }))
+    dispatch(
+      getGoogleCalendarEvents({
+        start: event.start.dateTime,
+        force: true,
+      })
+    )
   }
 }
 
@@ -69,7 +75,12 @@ export function updateGoogleCalendarEvent(event) {
     const response = await patchEvent({ calendar, event })
     //TODO: deal with response errors
 
-    dispatch(getGoogleCalendarEvents({ start: event.start.dateTime }))
+    dispatch(
+      getGoogleCalendarEvents({
+        start: event.start.dateTime,
+        force: true,
+      })
+    )
   }
 }
 
@@ -79,7 +90,12 @@ export function deleteGoogleCalendarEvent(event) {
     const response = await deleteEvent({ calendar, event })
     //TODO: deal with response errors
 
-    dispatch(getGoogleCalendarEvents({ start: event.start.dateTime }))
+    dispatch(
+      getGoogleCalendarEvents({
+        start: event.start.dateTime,
+        force: true,
+      })
+    )
   }
 }
 
