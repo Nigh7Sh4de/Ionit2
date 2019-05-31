@@ -64,7 +64,13 @@ export class Analytics extends PureComponent {
         style={{
           flexDirection: 'row',
           justifyContent: 'center',
-          marginVertical: 10,
+          paddingVertical: 10,
+          backgroundColor: 'white',
+          elevation: 4,
+          shadowOpacity: 0.2,
+          shadowRadius: 2,
+          shadowOffset: { height: 2 },
+          zIndex: 2,
         }}
       >
         {data}

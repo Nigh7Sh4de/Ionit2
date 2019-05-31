@@ -101,7 +101,7 @@ export class ListEvents extends Component {
     ))
 
     return (
-      <View>
+      <View style={{ flex: 1 }}>
         <ExpandableCalendar allowShadow={false} />
         <Analytics events={filteredEvents} />
         <ScrollView>{renderedEvents}</ScrollView>

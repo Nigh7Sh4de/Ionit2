@@ -6,53 +6,69 @@ import { Link } from 'react-router-native'
 export default class Navbar extends PureComponent {
   render() {
     return (
-      <View
-        style={{
-          borderTopWidth: 1,
-          flexDirection: 'row',
-          justifyContent: 'space-evenly',
-        }}
-      >
-        <Link
+      <View>
+        <View
           style={{
-            flex: 1,
-            alignItems: 'center',
+            backgroundColor: 'white',
+            height: 2,
+            shadowOpacity: 0.2,
+            shadowRadius: 2,
+            elevation: 4,
+            shadowOffset: { height: -2 },
           }}
-          component={TouchableOpacity}
-          to="/"
-        >
-          <Text>Login</Text>
-        </Link>
-        <Link
+        />
+        <View
           style={{
-            flex: 1,
-            alignItems: 'center',
+            backgroundColor: 'white',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
           }}
-          component={TouchableOpacity}
-          to="/events"
         >
-          <Text>Events</Text>
-        </Link>
-        <Link
-          style={{
-            flex: 1,
-            alignItems: 'center',
-          }}
-          component={TouchableOpacity}
-          to="/events/new"
-        >
-          <Text>New</Text>
-        </Link>
-        <Link
-          style={{
-            flex: 1,
-            alignItems: 'center',
-          }}
-          component={TouchableOpacity}
-          to="/times"
-        >
-          <Text>Times</Text>
-        </Link>
+          <Link
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              paddingVertical: 20,
+            }}
+            component={TouchableOpacity}
+            to="/"
+          >
+            <Text>Login</Text>
+          </Link>
+          <Link
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              paddingVertical: 20,
+            }}
+            component={TouchableOpacity}
+            to="/events"
+          >
+            <Text>Events</Text>
+          </Link>
+          <Link
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              paddingVertical: 20,
+            }}
+            component={TouchableOpacity}
+            to="/events/new"
+          >
+            <Text>New</Text>
+          </Link>
+          <Link
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              paddingVertical: 20,
+            }}
+            component={TouchableOpacity}
+            to="/times"
+          >
+            <Text>Times</Text>
+          </Link>
+        </View>
       </View>
     )
   }
