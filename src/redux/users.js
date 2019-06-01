@@ -7,7 +7,7 @@ export function initialize() {
     try {
       Google.configure()
     } catch (error) {
-      console.error(error)
+      console.log({ error })
       // dispatch(setError(error))
     }
   }
@@ -19,7 +19,7 @@ export function signIn() {
       user = await Google.signIn()
       dispatch(setUser(user))
     } catch (error) {
-      console.error(error)
+      console.log({ error })
       //dispatch(setError(error))
     }
   }
@@ -31,7 +31,7 @@ export function signInSilently() {
       user = await Google.signInSilently()
       dispatch(setUser(user))
     } catch (error) {
-      console.error(error)
+      console.log({ error })
       // dispatch(setError(error))
     }
   }

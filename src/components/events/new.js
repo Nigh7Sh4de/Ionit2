@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity, TextInput } from 'react-native'
-import { Redirect } from 'react-router-native'
+import uuidv4 from 'uuid/v4'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import moment from 'moment'
@@ -10,7 +10,7 @@ import queryString from 'query-string'
 import Colors from './colors'
 import {
   createGoogleCalendarEvent,
-  updateGoogleCalendarEvent,
+  patchGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
 } from '../../redux/events'
 
@@ -127,6 +127,7 @@ export class NewEvent extends Component {
     } = this.state
 
     const event = {
+      id: uuidv4().replace(/-/g, ''),
       start: {
         dateTime: start.toISOString(),
       },
@@ -144,7 +145,7 @@ export class NewEvent extends Component {
     })
 
     if (foundEvent) {
-      await this.props.updateGoogleCalendarEvent({
+      await this.props.patchGoogleCalendarEvent({
         ...event,
         id: foundEvent.id,
         calendar: foundEvent.calendar,
@@ -271,7 +272,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       createGoogleCalendarEvent,
-      updateGoogleCalendarEvent,
+      patchGoogleCalendarEvent,
       deleteGoogleCalendarEvent,
     },
     dispatch

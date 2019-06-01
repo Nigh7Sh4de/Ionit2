@@ -15,7 +15,7 @@ export function getGoogleCalendarColors() {
     try {
       colors = await getColors()
     } catch (error) {
-      console.error(error)
+      console.log({ error })
       // dispatch(setError(error))
     }
 

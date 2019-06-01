@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { View, Text, ScrollView } from 'react-native'
 import { ExpandableCalendar } from 'react-native-calendars'
 import { connect } from 'react-redux'
-import { Redirect } from 'react-router-native'
 import { bindActionCreators } from 'redux'
 import moment from 'moment'
 import { getGoogleCalendarEvents } from '../../redux/events'
@@ -49,7 +48,6 @@ export class ListEvents extends Component {
     if (!result.length) {
       result.push({
         blank: true,
-        id: start.toISOString(),
         summary: '',
         start: { dateTime: start.toISOString() },
         end: { dateTime: end.add(1, 'day').toISOString() },
@@ -61,7 +59,6 @@ export class ListEvents extends Component {
       if (next > end) {
         result.splice(i++, 0, {
           blank: true,
-          id: start.toISOString(),
           summary: '',
           start: { dateTime: end.toISOString() },
           end: { dateTime: next.toISOString() },
@@ -78,7 +75,6 @@ export class ListEvents extends Component {
     if (last < end) {
       result.push({
         blank: true,
-        id: last.toISOString(),
         summary: '',
         start: { dateTime: last.toISOString() },
         end: { dateTime: end.toISOString() },
@@ -112,7 +108,7 @@ export class ListEvents extends Component {
 
     const filteredEvents = this.filterEvents(events, date)
     const renderedEvents = filteredEvents.map(event => (
-      <AgendaItem key={event.id} item={event} />
+      <AgendaItem key={event.id || event.start.dateTime} item={event} />
     ))
 
     return (

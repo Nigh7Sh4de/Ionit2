@@ -1,16 +1,11 @@
 import React, { Component } from 'react'
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  Modal,
-} from 'react-native'
+import { ScrollView, Text, TouchableOpacity, Modal } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import {
   createGoogleCalendarEvent,
-  updateGoogleCalendarEvent,
+  patchGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
 } from '../../redux/events'
 
@@ -68,7 +63,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       createGoogleCalendarEvent,
-      updateGoogleCalendarEvent,
+      patchGoogleCalendarEvent,
       deleteGoogleCalendarEvent,
     },
     dispatch
