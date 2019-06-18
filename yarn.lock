@@ -4935,10 +4935,10 @@ react-native-animatable@^1.2.4:
   dependencies:
     prop-types "^15.5.10"
 
-react-native-calendars@^1.141.0:
-  version "1.141.0"
-  resolved "https://registry.yarnpkg.com/react-native-calendars/-/react-native-calendars-1.141.0.tgz#b15824fbe6799f8af8942cc422456f9a3f9ece00"
-  integrity sha512-dJKn2yYdc98lXBUT7k8PuIlpgpXqtPWClWk68IqYQ/WEVnkAkgbguoA3nPR+YqJ6vKNyqqAjW7iSdmcMu/5vrg==
+react-native-calendars@^1.188.0:
+  version "1.188.0"
+  resolved "https://registry.yarnpkg.com/react-native-calendars/-/react-native-calendars-1.188.0.tgz#949b4bf462fd5add0da82910f42d364f86a3b61d"
+  integrity sha512-jSD6dBrVB7u1WZtO8g6UuELsdVq4AS5UyO24AuVHrLyLKpijWuNDC2y+7XThCSnCEuv0RURZ8on8Ub0OPy9FLQ==
   dependencies:
     lodash.get "^4.4.2"
     lodash.isequal "^4.5.0"
