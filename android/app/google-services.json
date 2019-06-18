@@ -1,46 +1,46 @@
 {
   "project_info": {
-    "project_number": "516748484660",
-    "firebase_url": "https://ionit-186302.firebaseio.com",
-    "project_id": "ionit-186302",
-    "storage_bucket": "ionit-186302.appspot.com"
+    "project_number": "766343695982",
+    "firebase_url": "https://ionit-n7s.firebaseio.com",
+    "project_id": "ionit-n7s",
+    "storage_bucket": "ionit-n7s.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:516748484660:android:f43ee7b1c8cc77a0",
+        "mobilesdk_app_id": "1:766343695982:android:f43ee7b1c8cc77a0",
         "android_client_info": {
           "package_name": "com.ionit"
         }
       },
       "oauth_client": [
         {
-          "client_id": "516748484660-l7rjdnvd8oafp38e0dut9r3l8ocgcser.apps.googleusercontent.com",
+          "client_id": "766343695982-bns4mdbp64k8qicf602bs7i3l4qoevl1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ionit",
-            "certificate_hash": "2b768fcbae6c80baaf0c3303150bfb22f6405a36"
+            "certificate_hash": "fcb1d7b284f27119bc2d5908fd8048573d5f2c65"
           }
         },
         {
-          "client_id": "516748484660-biv90m1plpamj9m1cd1hirn1d1tj14qm.apps.googleusercontent.com",
+          "client_id": "766343695982-ekdklm1q6pb0ldr8npfi13aubgdarr2q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBAR6cI4R7IIb2W0SPU0Mck8vXR4Hbtveg"
+          "current_key": "AIzaSyB5NZSnYbGRxpg7x5qdlr18-3Ve2T0c3HI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "516748484660-biv90m1plpamj9m1cd1hirn1d1tj14qm.apps.googleusercontent.com",
+              "client_id": "766343695982-ekdklm1q6pb0ldr8npfi13aubgdarr2q.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "516748484660-48ojdlq2cbupi0fg8hd39v72rcdggjlv.apps.googleusercontent.com",
+              "client_id": "766343695982-fl25j2795bkotsn0rr6mftsn3f30mufe.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "org.reactjs.native.example.ionit"
