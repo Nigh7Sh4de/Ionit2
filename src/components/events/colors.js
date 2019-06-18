@@ -20,7 +20,7 @@ export class Colors extends Component {
       <TouchableOpacity
         key={id}
         style={{
-          borderWidth: color === id && 2,
+          borderWidth: color === id ? 2 : 0,
           backgroundColor: colors[id].background,
           height: 40,
           width: 100,
