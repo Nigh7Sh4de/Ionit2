@@ -35,6 +35,7 @@ export class NewEvent extends Component {
         summary: '',
         description: '',
         location: '',
+        tags: '', //[],
       }
     } else {
       foundEvent = events.find(e => e.id === id)
@@ -45,6 +46,7 @@ export class NewEvent extends Component {
         description: foundEvent.description,
         location: foundEvent.location,
         colorId: foundEvent.colorId,
+        tags: foundEvent.extendedProperties.private.tags, //.split(','),
       }
     }
 
@@ -124,6 +126,7 @@ export class NewEvent extends Component {
       description,
       location,
       colorId,
+      tags,
     } = this.state
 
     const event = {
@@ -138,6 +141,11 @@ export class NewEvent extends Component {
       description,
       location,
       colorId,
+      extendedProperties: {
+        private: {
+          tags, //: tags.join(','),
+        },
+      },
     }
 
     this.setState({
@@ -172,6 +180,7 @@ export class NewEvent extends Component {
       location,
       colorId,
       foundEvent,
+      tags,
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
@@ -246,6 +255,13 @@ export class NewEvent extends Component {
             colors={colors}
             color={colorId}
             onChangeColor={this.onChangeColor.bind(this)}
+          />
+        </View>
+        <View>
+          <Text>Tags</Text>
+          <TextInput
+            value={tags}
+            onChangeText={this.onChangeText.bind(this, 'tags')}
           />
         </View>
         <TouchableOpacity onPress={this.onPress}>
