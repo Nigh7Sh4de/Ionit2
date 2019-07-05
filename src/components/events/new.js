@@ -7,6 +7,7 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
+import TagSelector from './tagSelector'
 import Colors from './colors'
 import {
   createGoogleCalendarEvent,
@@ -35,7 +36,7 @@ export class NewEvent extends Component {
         summary: '',
         description: '',
         location: '',
-        tags: '', //[],
+        tags: [],
       }
     } else {
       foundEvent = events.find(e => e.id === id)
@@ -46,7 +47,7 @@ export class NewEvent extends Component {
         description: foundEvent.description,
         location: foundEvent.location,
         colorId: foundEvent.colorId,
-        tags: foundEvent.extendedProperties.private.tags, //.split(','),
+        tags: foundEvent.extendedProperties.private.tags.split(','),
       }
     }
 
@@ -63,6 +64,8 @@ export class NewEvent extends Component {
 
     this.onPress = this._onPress.bind(this)
     this.delete = this._delete.bind(this)
+    this.addTag = this._addTag.bind(this)
+    this.editTag = this._editTag.bind(this)
   }
 
   onChangeColor(colorId) {
@@ -101,6 +104,22 @@ export class NewEvent extends Component {
         [picker]: true,
       },
     })
+  }
+
+  _addTag(tag) {
+    let { tags } = this.state
+    if (tags.indexOf(tag) < 0)
+      this.setState({
+        tags: [...tags, tag],
+      })
+  }
+
+  _editTag() {
+    const { tags } = this.state
+    this.setState({
+      tags: tags.slice(0, -1),
+    })
+    return tags.slice(-1)[0]
   }
 
   async _delete() {
@@ -143,7 +162,7 @@ export class NewEvent extends Component {
       colorId,
       extendedProperties: {
         private: {
-          tags, //: tags.join(','),
+          tags: tags.join(','),
         },
       },
     }
@@ -184,6 +203,11 @@ export class NewEvent extends Component {
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
+    const tagList = tags.map(tag => (
+      <Text key={tag} style={{ fontWeight: '600' }}>
+        {tag}
+      </Text>
+    ))
 
     if (loading) return <Text>Loading...</Text>
 
@@ -259,10 +283,8 @@ export class NewEvent extends Component {
         </View>
         <View>
           <Text>Tags</Text>
-          <TextInput
-            value={tags}
-            onChangeText={this.onChangeText.bind(this, 'tags')}
-          />
+          {tagList}
+          <TagSelector onSubmit={this.addTag} onBack={this.editTag} />
         </View>
         <TouchableOpacity onPress={this.onPress}>
           <Text>{verb}</Text>
