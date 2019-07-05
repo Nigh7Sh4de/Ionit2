@@ -10,18 +10,12 @@ export default class Navbar extends PureComponent {
         <View
           style={{
             backgroundColor: 'white',
-            height: 2,
-            shadowOpacity: 0.2,
-            shadowRadius: 2,
-            elevation: 4,
-            shadowOffset: { height: -2 },
-          }}
-        />
-        <View
-          style={{
-            backgroundColor: 'white',
             flexDirection: 'row',
             justifyContent: 'space-evenly',
+            shadowOpacity: 0.2,
+            shadowRadius: 2,
+            elevation: 2,
+            shadowOffset: { height: -2 },
           }}
         >
           <Link
@@ -31,9 +25,9 @@ export default class Navbar extends PureComponent {
               paddingVertical: 20,
             }}
             component={TouchableOpacity}
-            to="/"
+            to="/settings"
           >
-            <Text>Login</Text>
+            <Text>Settings</Text>
           </Link>
           <Link
             style={{

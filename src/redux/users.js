@@ -3,9 +3,9 @@ import * as Google from './google'
 const SET_USER = 'SET_USER'
 
 export function initialize() {
-  return dispatch => {
+  return async dispatch => {
     try {
-      Google.configure()
+      await Google.configure()
     } catch (error) {
       console.log({ error })
       // dispatch(setError(error))

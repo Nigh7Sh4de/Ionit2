@@ -21,7 +21,7 @@ export async function signIn() {
 }
 
 export async function getCalendars() {
-  const { accessToken } = await signInSilently()
+  const { accessToken } = await GoogleSignin.getTokens()
   const response = await fetch(
     'https://www.googleapis.com/calendar/v3/users/me/calendarList',
     {
@@ -38,7 +38,7 @@ export async function getCalendars() {
 }
 
 export async function getColors() {
-  const { accessToken } = await signInSilently()
+  const { accessToken } = await GoogleSignin.getTokens()
   const response = await fetch(
     'https://www.googleapis.com/calendar/v3/colors',
     {
@@ -54,7 +54,7 @@ export async function getColors() {
 }
 
 export async function getEvents({ calendar, timeMin, timeMax }) {
-  const { accessToken } = await signInSilently()
+  const { accessToken } = await GoogleSignin.getTokens()
 
   timeMin = moment(timeMin).toISOString()
   timeMax = moment(timeMax).toISOString()
@@ -74,7 +74,7 @@ export async function getEvents({ calendar, timeMin, timeMax }) {
 }
 
 export async function createEvent({ calendar, event }) {
-  const { accessToken } = await signInSilently()
+  const { accessToken } = await GoogleSignin.getTokens()
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events`,
     {
@@ -90,7 +90,7 @@ export async function createEvent({ calendar, event }) {
 }
 
 export async function deleteEvent({ calendar, event: { id } }) {
-  const { accessToken } = await signInSilently()
+  const { accessToken } = await GoogleSignin.getTokens()
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${id}`,
     {
@@ -105,7 +105,7 @@ export async function deleteEvent({ calendar, event: { id } }) {
 }
 
 export async function patchEvent({ calendar, event }) {
-  const { accessToken } = await signInSilently()
+  const { accessToken } = await GoogleSignin.getTokens()
   const { id } = event
   const response = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${id}`,

@@ -15,6 +15,7 @@ import Settings from './settings'
 import Events from './events'
 import Times from './times'
 import { PersistGate } from 'redux-persist/integration/react'
+import RedirectGate from './login/redirectGate'
 
 const persistConfig = {
   key: 'ionit',
@@ -31,26 +32,15 @@ const persistor = persistStore(store)
 export default class App extends Component {
   render() {
     return (
-      <View
-        style={{
-          flexGrow: 1,
-        }}
-      >
+      <View style={{ flexGrow: 1 }}>
         <Provider store={store}>
           <PersistGate persistor={persistor}>
-            <SafeAreaView
-              style={{
-                flex: 1,
-              }}
-            >
+            <SafeAreaView style={{ flex: 1 }}>
               <Router>
-                <View
-                  style={{
-                    flex: 1,
-                  }}
-                >
+                <View style={{ flex: 1 }}>
+                  <Route path="/" component={RedirectGate} />
                   <Switch>
-                    <Route exact path="/" component={Login} />
+                    <Route exact path="/login" component={Login} />
                     <Route exact path="/settings" component={Settings} />
                     <Route exact path="/events" component={Events} />
                     <Route exact path="/times" component={Times} />
