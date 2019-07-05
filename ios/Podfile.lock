@@ -125,7 +125,7 @@ PODS:
   - RNFirebase (5.3.1):
     - Firebase/Core
     - React
-  - RNGoogleSignin (1.2.3):
+  - RNGoogleSignin (2.0.0):
     - GoogleSignIn (~> 4.4.0)
     - React
   - yoga (0.59.5.React)

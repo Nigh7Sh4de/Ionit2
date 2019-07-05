@@ -16,8 +16,10 @@ export class Calendar extends Component {
     for (let key of settings.incoming) {
       incoming[key] = true
     }
-    const outgoing = {
-      [settings.outgoing]: true,
+    const outgoing = {}
+
+    if (settings.outgoing) {
+      outgoing[settings.outgoing] = true
     }
 
     this.state = {
