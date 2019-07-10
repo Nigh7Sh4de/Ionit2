@@ -30,11 +30,14 @@ export class ListEvents extends Component {
   }
 
   filterEvents(events, date) {
+    let start = moment(date).startOf('day')
+    let end = moment(date).startOf('day').add(1, 'day')
+
     const result = events
       .filter(
         event =>
-          moment(event.start.dateTime).isSame(date, 'day') ||
-          moment(event.end.dateTime).isSame(date, 'day')
+          moment(event.start.dateTime).isSameOrBefore(end) &&
+          moment(event.end.dateTime).isSameOrAfter(start)
       )
       .sort(
         (a, b) =>
@@ -42,8 +45,6 @@ export class ListEvents extends Component {
           moment(b.start.dateTime || b.start.date)
       )
 
-    let start = moment(date).startOf('day')
-    let end = moment(date).startOf('day')
 
     if (!result.length) {
       result.push({
