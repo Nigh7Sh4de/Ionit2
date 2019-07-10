@@ -20,7 +20,7 @@ import RedirectGate from './login/redirectGate'
 const persistConfig = {
   key: 'ionit',
   storage,
-  blacklist: ['users', 'events.lastFetch'],
+  blacklist: ['events.lastFetch'],
 }
 
 const store = createStore(
