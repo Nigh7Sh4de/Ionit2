@@ -24,11 +24,6 @@ export class Login extends Component {
   }
 
   render() {
-    const { accessToken } = this.props.user
-    if (accessToken) {
-      return <Redirect to="/settings" />
-    }
-
     return (
       <View>
         <GoogleSigninButton

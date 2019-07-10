@@ -12,10 +12,10 @@ export class RedirectGate extends Component {
       !this.going &&
       user.idToken &&
       (!incoming || !outgoing) &&
-      location.pathname !== '/settings'
+      location.pathname !== '/settings/calendars'
     ) {
       this.going = true
-      return <Redirect to="/settings" />
+      return <Redirect to="/settings/calendars" />
     } else if (
       !this.going &&
       user.idToken &&
@@ -23,7 +23,7 @@ export class RedirectGate extends Component {
     ) {
       this.going = true
       return <Redirect to="/events" />
-    } else if (!user.idToken && !this.going && location.pathname !== 'login') {
+    } else if (!user.idToken && !this.going && location.pathname !== '/login') {
       this.going = true
       return <Redirect to="/login" />
     } else {

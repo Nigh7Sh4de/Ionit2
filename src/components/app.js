@@ -39,12 +39,10 @@ export default class App extends Component {
               <Router>
                 <View style={{ flex: 1 }}>
                   <Route path="/" component={RedirectGate} />
-                  <Switch>
-                    <Route exact path="/login" component={Login} />
-                    <Route exact path="/settings" component={Settings} />
-                    <Route exact path="/events" component={Events} />
-                    <Route exact path="/times" component={Times} />
-                  </Switch>
+                  <Route path="/login" component={Login} />
+                  <Route path="/settings" component={Settings} />
+                  <Route path="/events" component={Events} />
+                  <Route path="/times" component={Times} />
                 </View>
                 <Nav />
               </Router>
