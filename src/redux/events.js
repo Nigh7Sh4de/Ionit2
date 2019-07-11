@@ -149,6 +149,7 @@ export function deleteGoogleCalendarEvent(event) {
 
 const initialState = {
   data: [],
+  tags: [],
   lastFetch: {},
 }
 
@@ -173,7 +174,7 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
   const start = moment(timeMin).toISOString()
   const end = moment(timeMax).toISOString()
   const ids = {}
-  
+
   events.forEach(event => ids[event.id] = true)
   data = [
     ...data.filter(
@@ -182,9 +183,22 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
     ...events.filter(event => event.start.dateTime),
   ]
 
+  const tagMap = {}
+  data.forEach(event => {
+    if (event.extendedProperties && event.extendedProperties.private && event.extendedProperties.private.tags && typeof event.extendedProperties.private.tags === 'string') {
+      event.extendedProperties.private.tags.split(',').forEach(tag => {
+        if (tag.length) {
+          tagMap[tag] = true
+        }
+      })
+    }
+  })
+  const tags = Object.keys(tagMap)
+
   return {
     ...state,
     data,
+    tags,
     lastFetch: {
       timeMin: lastFetch.timeMin
         ? moment.min(moment(timeMin), moment(lastFetch.timeMin))
