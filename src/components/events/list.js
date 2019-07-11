@@ -82,22 +82,7 @@ export class ListEvents extends Component {
       })
     }
 
-    const f = 0
-    const l = result.length - 1
-    result[f].start.dateTime = moment.max(
-      result[f].start.dateTime,
-      moment(date).startOf('day')
-    )
-    result[l].end.dateTime = moment.min(
-      result[l].end.dateTime,
-      moment(date)
-        .startOf('day')
-        .add(1, 'day')
-    )
-
-    return result.filter(event =>
-      moment(event.end.dateTime).diff(event.start.dateTime)
-    )
+    return result
   }
 
   render() {
@@ -109,7 +94,7 @@ export class ListEvents extends Component {
 
     const filteredEvents = this.filterEvents(events, date)
     const renderedEvents = filteredEvents.map(event => (
-      <AgendaItem key={event.id || event.start.dateTime} item={event} />
+      <AgendaItem key={event.id || event.start.dateTime} date={date} item={event} />
     ))
 
     return (

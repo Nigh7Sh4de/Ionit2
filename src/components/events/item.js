@@ -22,10 +22,10 @@ export class Item extends PureComponent {
   }
 
   render() {
-    const { item, colors } = this.props
+    const { date, item, colors } = this.props
     const { summary, id, start, end, colorId, blank } = item
+    
     const { selected } = this.state
-    const color = colors[colorId] || {}
     if (selected) {
       return (
         <Redirect
@@ -37,9 +37,19 @@ export class Item extends PureComponent {
       )
     }
 
-    const _start = moment(start.dateTime)
-    const _end = moment(end.dateTime)
+    const _start = moment.max(moment(start.dateTime), moment(date).startOf('day'))
+    const _end = moment.min(
+      moment(end.dateTime),
+      moment(date)
+        .startOf('day')
+        .add(1, 'day')
+    )
     const minutes = _end.diff(_start, 'minutes')
+    if (minutes <= 0) {
+      return null
+    }
+
+    const color = colors[colorId] || {}
     const paddingVertical = Math.min(~~(minutes / 60) * 10, 30)
     let backgroundColor = 'lightgray'
     if (blank) {

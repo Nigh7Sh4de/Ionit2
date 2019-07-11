@@ -9,6 +9,7 @@ export const DELETE_EVENT = 'DELETE_EVENT'
 export const FETCH_DELAY = 60
 
 export function saveEvents(events, timeMin, timeMax) {
+  console.log({ saveEvents: events })
   return {
     type: SAVE_EVENTS,
     events,
@@ -43,7 +44,9 @@ export function deleteEvent({ event, calendar }) {
 
 export function getGoogleCalendarEvents({ start, end, force }) {
   return async (dispatch, getState) => {
+    console.group('getGoogleCalendarEvents')
     await dispatch(processQueue())
+    console.log('Queue processed.')
 
     const { settings } = getState().calendars
     const { lastFetch } = getState().events
@@ -53,6 +56,8 @@ export function getGoogleCalendarEvents({ start, end, force }) {
       .add(1, 'day')
     const delay = moment().subtract(FETCH_DELAY, 's')
 
+    console.log('Use settings', { settings, start, end, lastFetch, force })
+
     if (
       !force &&
       lastFetch.timeCalled &&
@@ -60,12 +65,16 @@ export function getGoogleCalendarEvents({ start, end, force }) {
       moment(lastFetch.timeMin) <= timeMin &&
       moment(lastFetch.timeMax) >= timeMax
     ) {
+      console.log('Skip data fetch.')
+      console.groupEnd()
       return
     }
 
     for (let calendar of settings.incoming) {
+      console.log({ calendar })
       try {
         const newEvents = await getEvents({ calendar, timeMin, timeMax })
+        console.log({ newEvents })
         dispatch(
           saveEvents(
             newEvents.map(event => ({
@@ -80,6 +89,7 @@ export function getGoogleCalendarEvents({ start, end, force }) {
         console.log({ error })
       }
     }
+    console.groupEnd()
   }
 }
 
@@ -159,12 +169,15 @@ export default function reducer(state = initialState, action) {
 
 function massageEventsResponse(state, { events, timeMin, timeMax }) {
   let { data, lastFetch } = state
-
+  
   const start = moment(timeMin).toISOString()
   const end = moment(timeMax).toISOString()
+  const ids = {}
+  
+  events.forEach(event => ids[event.id] = true)
   data = [
     ...data.filter(
-      event => event.end.dateTime <= start || event.start.dateTime >= end
+      event => !ids[event.id] && (event.start.dateTime <= start || event.end.dateTime >= end)
     ),
     ...events.filter(event => event.start.dateTime),
   ]
