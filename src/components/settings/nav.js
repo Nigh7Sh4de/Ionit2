@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 export class SettingsNav extends Component {
   render() {
     return (
-      <View contentContainerStyle={{flexShrink: 0, backgroundColo: 'magentar'}}>
+      <View>
         <Text>Settings</Text>
         <Link
           to="/settings/calendars"
@@ -14,6 +14,13 @@ export class SettingsNav extends Component {
           component={TouchableOpacity}
         >
           <Text>Calendars</Text>
+        </Link>
+        <Link
+          to="/settings/interval"
+          style={{ borderWidth: 1 }}
+          component={TouchableOpacity}
+        >
+          <Text>Interval</Text>
         </Link>
         <Link
           to="/settings/tags"

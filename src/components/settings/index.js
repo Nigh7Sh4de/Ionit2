@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 
 import Nav from './nav'
 import Calendars from './calendars'
+import Interval from './interval'
 import Tags from './tags'
 
 export class Settings extends Component {
@@ -17,6 +18,7 @@ export class Settings extends Component {
       <View style={{ flex: 1 }}>
         <Route path="/settings" component={Nav} />
         <Route exact path="/settings/calendars" component={Calendars} />
+        <Route exact path="/settings/interval" component={Interval} />
         <Route exact path="/settings/tags" component={Tags} />
       </View>
     )

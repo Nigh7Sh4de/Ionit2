@@ -21,59 +21,33 @@ export class Item extends PureComponent {
     })
   }
 
-  render() {
-    const { date, item, colors } = this.props
-    const { summary, id, start, end, colorId, blank } = item
-
-    const { selected } = this.state
-    if (selected) {
-      return (
-        <Redirect
-          push
-          to={`/events/${blank ? 'new' : id}?start=${start.dateTime}&end=${
-            end.dateTime
-          }`}
-        />
-      )
-    }
-
-    const _start = moment.max(
-      moment(start.dateTime),
-      moment(date).startOf('day')
-    )
-    const _end = moment.min(
-      moment(end.dateTime),
-      moment(date)
-        .startOf('day')
-        .add(1, 'day')
-    )
-    const minutes = _end.diff(_start, 'minutes')
-    if (minutes <= 0) {
+  renderItem({ start, end, summary, color, blank }) {
+    if (end.diff(start, 'minutes') <= 0) {
       return null
     }
 
-    const color = colors[colorId] || {}
-    const paddingVertical = Math.min(~~(minutes / 60) * 10, 30)
+    const paddingVertical = Math.min(end.diff(start, 'minutes') * 0.1, 36)
     let backgroundColor = 'lightgray'
     if (blank) {
       backgroundColor = 'darkgrey'
-    } else if (colors[colorId]) {
-      backgroundColor = colors[colorId].background
+    } else if (color.background) {
+      backgroundColor = color.background
     }
 
     return (
       <TouchableOpacity
+        key={start.toISOString()}
         onPress={this._editEvent.bind(this)}
         style={{
           flexDirection: 'row',
-          marginBottom: 15,
+          marginBottom: 5,
           paddingVertical: 10,
           backgroundColor,
         }}
       >
         <View style={{ width: 50, alignItems: 'flex-end', paddingVertical }}>
-          <Text>{_start.format('H:mm')}</Text>
-          <Text>{_end.format('H:mm')}</Text>
+          <Text>{start.format('H:mm')}</Text>
+          <Text>{end.format('H:mm')}</Text>
         </View>
         <View
           style={{
@@ -97,11 +71,58 @@ export class Item extends PureComponent {
       </TouchableOpacity>
     )
   }
+
+  render() {
+    const { date, item, colors, interval } = this.props
+    const { summary, id, start, end, colorId, blank } = item
+
+    const { selected } = this.state
+    if (selected) {
+      return (
+        <Redirect
+          push
+          to={`/events/${blank ? 'new' : id}?start=${start.dateTime}&end=${
+            end.dateTime
+          }`}
+        />
+      )
+    }
+
+    let _start = moment.max(moment(start.dateTime), moment(date).startOf('day'))
+    let _end = moment.min(
+      moment(end.dateTime),
+      moment(date)
+        .startOf('day')
+        .add(1, 'day')
+    )
+
+    const color = colors[colorId] || {}
+
+    if (!blank) {
+      return this.renderItem({ start: _start, end: _end, summary, color })
+    } else {
+      const result = []
+      while (_start < _end) {
+        result.push(
+          this.renderItem({
+            start: _start,
+            end: moment.min(moment(_start).add(interval, 'minutes'), _end),
+            summary,
+            color,
+          })
+        )
+
+        _start = _start.add(interval, 'minutes')
+      }
+      return result
+    }
+  }
 }
 
 function mapStateToProps(state) {
   return {
     colors: state.colors.event,
+    interval: state.settings.interval,
   }
 }
 
