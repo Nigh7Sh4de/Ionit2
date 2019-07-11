@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { SafeAreaView, View } from 'react-native'
-import { NativeRouter as Router, Switch, Route } from 'react-router-native'
+import { NativeRouter as Router, Route, BackButton } from 'react-router-native'
 import { createStore, applyMiddleware } from 'redux'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
@@ -38,6 +38,7 @@ export default class App extends Component {
             <SafeAreaView style={{ flex: 1 }}>
               <Router>
                 <View style={{ flex: 1 }}>
+                  <BackButton />
                   <Route path="/" component={RedirectGate} />
                   <Route path="/login" component={Login} />
                   <Route path="/settings" component={Settings} />
