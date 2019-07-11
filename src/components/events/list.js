@@ -7,7 +7,6 @@ import moment from 'moment'
 import { getGoogleCalendarEvents } from '../../redux/events'
 
 import AgendaItem from './item'
-import Analytics from './analytics'
 import asCalendarConsumer from 'react-native-calendars/src/expandableCalendar/asCalendarConsumer'
 
 export class ListEvents extends Component {
@@ -92,15 +91,13 @@ export class ListEvents extends Component {
       return <Text>You have no events!</Text>
     }
 
-    const filteredEvents = this.filterEvents(events, date)
-    const renderedEvents = filteredEvents.map(event => (
+    const renderedEvents = this.filterEvents(events, date).map(event => (
       <AgendaItem key={event.id || event.start.dateTime} date={date} item={event} />
     ))
 
     return (
       <View style={{ flex: 1 }}>
         <ExpandableCalendar allowShadow={false} />
-        <Analytics events={filteredEvents} />
         <ScrollView>{renderedEvents}</ScrollView>
       </View>
     )
