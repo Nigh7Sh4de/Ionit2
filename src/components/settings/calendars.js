@@ -86,7 +86,7 @@ export class Calendar extends Component {
     ))
 
     return (
-      <View style={{ flex: 1, backgroundColor: 'green' }}>
+      <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row' }}>
           <Text style={{ flex: 1 }}>Calendar</Text>
           <Text style={{ width }}>Read</Text>
