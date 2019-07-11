@@ -41,10 +41,8 @@ export class Events extends Component {
         date={moment().format('YYYY-MM-DD')}
         onDateChanged={this.onDateChanged}
       >
-        <Router basename={this.props.match.path}>
-          <Route exact path="/" component={ListEvents} />
-          <Route exact path="/:id" component={NewEvent} />
-        </Router>
+        <Route exact path="/events" component={ListEvents} />
+        <Route exact path="/events/:id" component={NewEvent} />
       </CalendarProvider>
     )
   }

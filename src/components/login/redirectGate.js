@@ -5,6 +5,14 @@ import { Redirect } from 'react-router-native'
 export class RedirectGate extends Component {
   going = false
 
+  constructor(props) {
+    super(props)
+
+    console.group('RedirectGate mounted')
+    console.log(props.location.pathname)
+    console.groupEnd()
+  }
+
   render() {
     const { user, incoming, outgoing, location } = this.props
 

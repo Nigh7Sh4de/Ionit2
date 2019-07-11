@@ -24,20 +24,23 @@ export class Item extends PureComponent {
   render() {
     const { date, item, colors } = this.props
     const { summary, id, start, end, colorId, blank } = item
-    
+
     const { selected } = this.state
     if (selected) {
       return (
         <Redirect
           push
-          to={`/${blank ? 'new' : id}?start=${start.dateTime}&end=${
+          to={`/events/${blank ? 'new' : id}?start=${start.dateTime}&end=${
             end.dateTime
           }`}
         />
       )
     }
 
-    const _start = moment.max(moment(start.dateTime), moment(date).startOf('day'))
+    const _start = moment.max(
+      moment(start.dateTime),
+      moment(date).startOf('day')
+    )
     const _end = moment.min(
       moment(end.dateTime),
       moment(date)
