@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import { View } from 'react-native'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Redirect } from 'react-router-native'
 import { GoogleSigninButton } from 'react-native-google-signin'
 
 import { initialize, signIn, signInSilently } from '../../redux/users'
-import { setSettings } from '../../redux/calendars'
 
 export class Login extends Component {
   constructor(props) {
@@ -44,10 +42,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { initialize, signInSilently, setSettings, signIn },
-    dispatch
-  )
+  return bindActionCreators({ initialize, signInSilently, signIn }, dispatch)
 }
 
 export default connect(

@@ -44,8 +44,8 @@ export class RedirectGate extends Component {
 function mapStateToProps(state) {
   return {
     user: state.users.data,
-    incoming: !!state.calendars.settings.incoming.length,
-    outgoing: !!state.calendars.settings.outgoing,
+    incoming: !!state.settings.calendars.incoming.length,
+    outgoing: !!state.settings.calendars.outgoing,
   }
 }
 

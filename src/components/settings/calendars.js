@@ -3,7 +3,8 @@ import { View, Text, Switch } from 'react-native'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { getGoogleCalendarList, setSettings } from '../../redux/calendars'
+import { getGoogleCalendarList } from '../../redux/calendars'
+import { setSettingsCalendars } from '../../redux/settings'
 import { getGoogleCalendarColors } from '../../redux/colors'
 
 export class Calendar extends Component {
@@ -35,7 +36,7 @@ export class Calendar extends Component {
     await this.props.getGoogleCalendarColors()
   }
 
-  setSettings() {
+  setSettingsCalendars() {
     const { settings } = this.state
     const incoming = Object.keys(settings.incoming).filter(
       calendar => settings.incoming[calendar]
@@ -43,7 +44,7 @@ export class Calendar extends Component {
     const outgoing = Object.keys(settings.outgoing).find(
       calendar => settings.outgoing[calendar]
     )
-    this.props.setSettings({ incoming, outgoing })
+    this.props.setSettingsCalendars({ incoming, outgoing })
   }
 
   onIncomingChange(id, value) {
@@ -54,7 +55,7 @@ export class Calendar extends Component {
         [id]: value,
       },
     }
-    this.setState({ settings }, this.setSettings)
+    this.setState({ settings }, this.setSettingsCalendars)
   }
 
   onOutgoingChange(id, value) {
@@ -64,7 +65,7 @@ export class Calendar extends Component {
         [id]: value,
       },
     }
-    this.setState({ settings }, this.setSettings)
+    this.setState({ settings }, this.setSettingsCalendars)
   }
 
   render() {
@@ -101,13 +102,13 @@ export class Calendar extends Component {
 function mapStateToProps(state) {
   return {
     calendars: state.calendars.data,
-    settings: state.calendars.settings,
+    settings: state.settings.calendars,
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { getGoogleCalendarList, setSettings, getGoogleCalendarColors },
+    { getGoogleCalendarList, setSettingsCalendars, getGoogleCalendarColors },
     dispatch
   )
 }

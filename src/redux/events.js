@@ -56,7 +56,7 @@ export function getGoogleCalendarEvents({ start, end, force }) {
     await dispatch(processQueue())
     console.log('Queue processed.')
 
-    const { settings } = getState().calendars
+    const { calendars } = getState().settings
     const { lastFetch } = getState().events
     const timeMin = moment(start).startOf('day')
     const timeMax = moment(end || start)
@@ -64,7 +64,7 @@ export function getGoogleCalendarEvents({ start, end, force }) {
       .add(1, 'day')
     const delay = moment().subtract(FETCH_DELAY, 's')
 
-    console.log('Use settings', { settings, start, end, lastFetch, force })
+    console.log('Use settings', { calendars, start, end, lastFetch, force })
 
     if (
       !force &&
@@ -78,7 +78,7 @@ export function getGoogleCalendarEvents({ start, end, force }) {
       return
     }
 
-    for (let calendar of settings.incoming) {
+    for (let calendar of calendars.incoming) {
       console.log({ calendar })
       try {
         const newEvents = await getEvents({ calendar, timeMin, timeMax })
@@ -103,7 +103,7 @@ export function getGoogleCalendarEvents({ start, end, force }) {
 
 export function createGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
-    const { outgoing } = getState().calendars.settings
+    const { outgoing } = getState().settings.calendars
     const payload = {
       event,
       calendar: outgoing,
@@ -121,7 +121,7 @@ export function createGoogleCalendarEvent(event) {
 
 export function patchGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
-    const { outgoing } = getState().calendars.settings
+    const { outgoing } = getState().settings.calendars
     const payload = {
       event,
       calendar: outgoing,
@@ -139,7 +139,7 @@ export function patchGoogleCalendarEvent(event) {
 
 export function deleteGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
-    const { outgoing } = getState().calendars.settings
+    const { outgoing } = getState().settings.calendars
     const payload = {
       event,
       calendar: outgoing,
