@@ -16,6 +16,7 @@ import Events from './events'
 import Times from './times'
 import { PersistGate } from 'redux-persist/integration/react'
 import RedirectGate from './login/redirectGate'
+import FlashMessage from 'react-native-flash-message'
 
 const persistConfig = {
   key: 'ionit',
@@ -46,6 +47,7 @@ export default class App extends Component {
                   <Route path="/times" component={Times} />
                 </View>
                 <Nav />
+                <FlashMessage position={{ bottom: 60 }} />
               </Router>
             </SafeAreaView>
           </PersistGate>

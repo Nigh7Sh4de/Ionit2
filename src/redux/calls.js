@@ -1,5 +1,6 @@
 import { Alert } from 'react-native'
 import * as Google from './google'
+import { showMessage } from 'react-native-flash-message'
 
 export const ADD_CALL = 'ADD_CALL'
 export const COMPLETE_CALLS = 'COMPLETE_CALLS'
@@ -27,7 +28,17 @@ export function processQueue() {
     }
 
     errors.forEach(error => Alert.alert(error.toString()))
-    completed.length && dispatch(completeCalls(completed))
+
+    if (completed.length) {
+      showMessage({
+        message: `Connected to Google`,
+        description: `${completed.length}/${
+          data.length
+        } cached actions completed`,
+        type: completed.length < data.length ? 'warning' : 'success',
+      })
+      dispatch(completeCalls(completed))
+    }
   }
 }
 

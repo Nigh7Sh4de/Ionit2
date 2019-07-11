@@ -1,6 +1,7 @@
 import moment from 'moment'
 import { getEvents } from './google'
 import { addCall, processQueue } from './calls'
+import { showMessage } from 'react-native-flash-message'
 
 export const SAVE_EVENTS = 'SAVE_EVENTS'
 export const ADD_EVENT = 'ADD_EVENT'
@@ -9,7 +10,14 @@ export const DELETE_EVENT = 'DELETE_EVENT'
 export const FETCH_DELAY = 60
 
 export function saveEvents(events, timeMin, timeMax) {
-  console.log({ saveEvents: events })
+  const from = moment(timeMin).format('YYYY-MM-DD')
+  const to = moment(timeMax).format('YYYY-MM-DD')
+  showMessage({
+    message: 'Connected to Google',
+    description: `Events retreived for ${from} - ${to}`,
+    type: 'success',
+  })
+
   return {
     type: SAVE_EVENTS,
     events,
@@ -170,22 +178,29 @@ export default function reducer(state = initialState, action) {
 
 function massageEventsResponse(state, { events, timeMin, timeMax }) {
   let { data, lastFetch } = state
-  
+
   const start = moment(timeMin).toISOString()
   const end = moment(timeMax).toISOString()
   const ids = {}
 
-  events.forEach(event => ids[event.id] = true)
+  events.forEach(event => (ids[event.id] = true))
   data = [
     ...data.filter(
-      event => !ids[event.id] && (event.start.dateTime <= start || event.end.dateTime >= end)
+      event =>
+        !ids[event.id] &&
+        (event.start.dateTime <= start || event.end.dateTime >= end)
     ),
     ...events.filter(event => event.start.dateTime),
   ]
 
   const tagMap = {}
   data.forEach(event => {
-    if (event.extendedProperties && event.extendedProperties.private && event.extendedProperties.private.tags && typeof event.extendedProperties.private.tags === 'string') {
+    if (
+      event.extendedProperties &&
+      event.extendedProperties.private &&
+      event.extendedProperties.private.tags &&
+      typeof event.extendedProperties.private.tags === 'string'
+    ) {
       event.extendedProperties.private.tags.split(',').forEach(tag => {
         if (tag.length) {
           tagMap[tag] = true

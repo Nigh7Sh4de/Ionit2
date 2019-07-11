@@ -16,6 +16,7 @@ export default class Navbar extends PureComponent {
             shadowRadius: 2,
             elevation: 2,
             shadowOffset: { height: -2 },
+            height: 60,
           }}
         >
           <Link
