@@ -11,13 +11,15 @@ export class Item extends PureComponent {
 
     this.state = {
       selected: false,
+      override: {},
     }
     this.editEvent = this._editEvent.bind(this)
   }
 
-  _editEvent() {
+  _editEvent(override) {
     this.setState({
       selected: true,
+      override,
     })
   }
 
@@ -37,7 +39,10 @@ export class Item extends PureComponent {
     return (
       <TouchableOpacity
         key={start.toISOString()}
-        onPress={this._editEvent.bind(this)}
+        onPress={this._editEvent.bind(this, {
+          start: start.toISOString(),
+          end: end.toISOString(),
+        })}
         style={{
           flexDirection: 'row',
           marginBottom: 5,
@@ -76,14 +81,13 @@ export class Item extends PureComponent {
     const { date, item, colors, interval } = this.props
     const { summary, id, start, end, colorId, blank } = item
 
-    const { selected } = this.state
+    const { selected, override } = this.state
     if (selected) {
       return (
         <Redirect
           push
-          to={`/events/${blank ? 'new' : id}?start=${start.dateTime}&end=${
-            end.dateTime
-          }`}
+          to={`/events/${blank ? 'new' : id}?start=${override.start ||
+            start.dateTime}&end=${override.end || end.dateTime}`}
         />
       )
     }

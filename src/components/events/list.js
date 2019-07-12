@@ -30,7 +30,9 @@ export class ListEvents extends Component {
 
   filterEvents(events, date) {
     let start = moment(date).startOf('day')
-    let end = moment(date).startOf('day').add(1, 'day')
+    let end = moment(date)
+      .startOf('day')
+      .add(1, 'day')
 
     const result = events
       .filter(
@@ -43,7 +45,6 @@ export class ListEvents extends Component {
           moment(a.start.dateTime || a.start.date) -
           moment(b.start.dateTime || b.start.date)
       )
-
 
     if (!result.length) {
       result.push({
@@ -92,7 +93,11 @@ export class ListEvents extends Component {
     }
 
     const renderedEvents = this.filterEvents(events, date).map(event => (
-      <AgendaItem key={event.id || event.start.dateTime} date={date} item={event} />
+      <AgendaItem
+        key={event.id || event.start.dateTime}
+        date={date}
+        item={event}
+      />
     ))
 
     return (
