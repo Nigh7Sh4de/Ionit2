@@ -1,5 +1,11 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, TextInput } from 'react-native'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+} from 'react-native'
 import uuidv4 from 'uuid/v4'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -40,6 +46,14 @@ export class NewEvent extends Component {
       }
     } else {
       foundEvent = events.find(e => e.id === id)
+      let tags = []
+      if (
+        foundEvent.extendedProperties &&
+        foundEvent.extendedProperties.private &&
+        foundEvent.extendedProperties.private.tags
+      ) {
+        tags = foundEvent.extendedProperties.private.tags.split(',')
+      }
       event = {
         start: moment(foundEvent.start.dateTime),
         end: moment(foundEvent.end.dateTime),
@@ -47,7 +61,7 @@ export class NewEvent extends Component {
         description: foundEvent.description,
         location: foundEvent.location,
         colorId: foundEvent.colorId,
-        tags: foundEvent.extendedProperties.private.tags.split(','),
+        tags,
       }
     }
 
@@ -214,7 +228,7 @@ export class NewEvent extends Component {
     const verb = foundEvent ? 'Update' : 'Create'
 
     return (
-      <View>
+      <ScrollView>
         <Text>New Event</Text>
         <View>
           <Text>Start</Text>
@@ -294,7 +308,7 @@ export class NewEvent extends Component {
             <Text>Delete</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </ScrollView>
     )
   }
 }

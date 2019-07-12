@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { CalendarProvider } from 'react-native-calendars'
+import { CalendarProvider, ExpandableCalendar } from 'react-native-calendars'
 import { NativeRouter as Router, Route } from 'react-router-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -41,6 +41,7 @@ export class Events extends Component {
         date={moment().format('YYYY-MM-DD')}
         onDateChanged={this.onDateChanged}
       >
+        <ExpandableCalendar allowShadow={false} />
         <Route exact path="/events" component={ListEvents} />
         <Route exact path="/events/:id" component={NewEvent} />
       </CalendarProvider>
