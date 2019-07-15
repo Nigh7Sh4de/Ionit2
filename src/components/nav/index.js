@@ -41,6 +41,17 @@ export default class Navbar extends PureComponent {
           >
             <Text>Events</Text>
           </Link>
+          <Link
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              paddingVertical: 20,
+            }}
+            component={TouchableOpacity}
+            to="/reports"
+          >
+            <Text>Reports</Text>
+          </Link>
         </View>
       </View>
     )
