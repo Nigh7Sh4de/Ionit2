@@ -31,7 +31,11 @@ export class Colors extends Component {
       />
     ))
     return (
-      <Modal visible={visible} transparent={true}>
+      <Modal
+        visible={visible}
+        transparent={true}
+        onRequestClose={this.onChangeColor.bind(this, color)}
+      >
         <ScrollView
           contentContainerStyle={{
             alignItems: 'center',
