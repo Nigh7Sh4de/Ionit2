@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, FlatList } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { moveTag } from '../../redux/events'
-import TagTree from '../lib/TagTree'
+import { asTagTreeConsumer } from '../lib/TagTree'
 
 export class Tags extends Component {
   constructor(props) {
@@ -75,10 +75,14 @@ export class Tags extends Component {
   }
 
   render() {
+    const tagList = this.props.tagList.map(item => ({
+      ...item,
+      selected: this.state.selected === item.tag,
+    }))
     return (
       <View style={{ flex: 1 }}>
         <Text style={{ fontWeight: '600' }}>Tags</Text>
-        <TagTree tags={this.props.tags} renderItem={this.renderItem} />
+        <FlatList data={tagList} renderItem={this.renderItem} />
       </View>
     )
   }
@@ -97,4 +101,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Tags)
+)(asTagTreeConsumer(Tags))

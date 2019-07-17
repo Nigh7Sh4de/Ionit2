@@ -11,7 +11,7 @@ import { Redirect } from 'react-router-native'
 import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 
-import TagSelector from '../events/tagSelector'
+import TagTreeSelector from '../events/tagTreeSelector'
 
 export class CreateReport extends Component {
   constructor(props) {
@@ -21,6 +21,7 @@ export class CreateReport extends Component {
       visible: {
         start: false,
         end: false,
+        tags: false,
       },
       start: moment().startOf('day'),
       end: moment()
@@ -33,7 +34,7 @@ export class CreateReport extends Component {
     this.onPress = this._onPress.bind(this)
     this.addGroup = this._addGroup.bind(this)
     this.addTag = this._addTag.bind(this)
-    this.editTag = this._editTag.bind(this)
+    this.removeTag = this._removeTag.bind(this)
   }
 
   onChangeGroupName(prevValue, value) {
@@ -94,15 +95,14 @@ export class CreateReport extends Component {
       })
   }
 
-  _editTag(group) {
+  _removeTag(group, tag) {
     const tags = this.state.groups[group]
     this.setState({
       groups: {
         ...this.state.groups,
-        [group]: tags.slice(0, -1),
+        [group]: tags.filter(x => x !== tag),
       },
     })
-    return tags.slice(-1)[0]
   }
 
   async _onPress() {
@@ -141,12 +141,17 @@ export class CreateReport extends Component {
             value={group}
             onChangeText={this.onChangeGroupName.bind(this, group)}
           />
-          <Text>Tags</Text>
-          {tagList}
-          <TagSelector
-            onSubmit={this.addTag.bind(this, group)}
-            onBack={this.editTag.bind(this, group)}
+          <TouchableOpacity onPress={this.showDateTime.bind(this, 'tags')}>
+            <Text>Search through existing tags</Text>
+          </TouchableOpacity>
+          <TagTreeSelector
+            visible={visible.tags}
+            selected={groups[group]}
+            onSelectTag={this.addTag.bind(this, group)}
+            onUnselectTag={this.removeTag.bind(this, group)}
+            onClose={this.hideDateTime.bind(this, 'tags')}
           />
+          {tagList}
         </View>
       )
     }
