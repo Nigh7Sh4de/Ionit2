@@ -7,6 +7,7 @@ export const SAVE_EVENTS = 'SAVE_EVENTS'
 export const ADD_EVENT = 'ADD_EVENT'
 export const UPDATE_EVENT = 'UPDATE_EVENT'
 export const DELETE_EVENT = 'DELETE_EVENT'
+export const MOVE_TAG = 'MOVE_TAG'
 export const FETCH_DELAY = 60
 
 export function saveEvents(events, timeMin, timeMax) {
@@ -47,6 +48,14 @@ export function deleteEvent({ event, calendar }) {
     type: DELETE_EVENT,
     event,
     calendar,
+  }
+}
+
+export function moveTag({ src, dst }) {
+  return {
+    type: MOVE_TAG,
+    src,
+    dst,
   }
 }
 
@@ -157,7 +166,10 @@ export function deleteGoogleCalendarEvent(event) {
 
 const initialState = {
   data: [],
-  tags: [],
+  tags: {
+    Sorted: {},
+    Unsorted: {},
+  },
   lastFetch: {},
 }
 
@@ -171,6 +183,8 @@ export default function reducer(state = initialState, action) {
       return updateOfflineEvent(state, action)
     case DELETE_EVENT:
       return deleteOfflineEvent(state, action)
+    case MOVE_TAG:
+      return processMoveTag(state, action)
     default:
       return state
   }
@@ -182,6 +196,7 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
   const start = moment(timeMin).toISOString()
   const end = moment(timeMax).toISOString()
   const ids = {}
+  const tags = { ...state.tags, Unsorted: { ...state.tags.Unsorted } }
 
   events.forEach(event => (ids[event.id] = true))
   data = [
@@ -193,7 +208,6 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
     ...events.filter(event => event.start.dateTime),
   ]
 
-  const tagMap = {}
   data.forEach(event => {
     if (
       event.extendedProperties &&
@@ -203,12 +217,19 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
     ) {
       event.extendedProperties.private.tags.split(',').forEach(tag => {
         if (tag.length) {
-          tagMap[tag] = true
+          tags.Unsorted[tag] = {}
         }
       })
     }
   })
-  const tags = Object.keys(tagMap)
+  let tagList = [tags.Sorted]
+  while (tagList.length) {
+    const tags = tagList.pop()
+    for (let tag in tags) {
+      tagList.push(tags[tag])
+      if (tags.Unsorted[tag]) delete tags.Unsorted[tag]
+    }
+  }
 
   return {
     ...state,
@@ -250,5 +271,46 @@ function deleteOfflineEvent(state, { event: { id } }) {
   return {
     ...state,
     data: state.data.filter(event => event.id !== id),
+  }
+}
+
+function generatePath(tree, path, target) {
+  for (let prop in tree) {
+    if (prop === target) {
+      return path
+    }
+    const deepSearch = generatePath(tree[prop], [...path, prop], target)
+    if (deepSearch) {
+      return deepSearch
+    }
+  }
+}
+
+function processMoveTag(state, { src, dst }) {
+  const dstPath = generatePath(state.tags, [], dst) || []
+  const srcPath = generatePath(state.tags, [], src) || []
+
+  const tags = { ...state.tags }
+  let srcPointer = tags
+  for (let prop of srcPath) {
+    srcPointer[prop] = { ...srcPointer[prop] }
+    srcPointer = srcPointer[prop]
+  }
+
+  let dstPointer = tags
+  for (let prop of dstPath) {
+    dstPointer[prop] = { ...dstPointer[prop] }
+    dstPointer = dstPointer[prop]
+  }
+
+  dstPointer[dst] = {
+    ...dstPointer[dst],
+    [src]: srcPointer[src] || {},
+  }
+  delete srcPointer[src]
+
+  return {
+    ...state,
+    tags,
   }
 }

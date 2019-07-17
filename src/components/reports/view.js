@@ -10,7 +10,7 @@ export class ViewReport extends Component {
     const total = moment(end).diff(start, 'minutes')
     const result = {
       ...groups,
-      ungrouped: { minutes: total },
+      Unsorted: { minutes: total },
     }
 
     const tags = {}
@@ -52,7 +52,7 @@ export class ViewReport extends Component {
           ))
       )
       result[group].minutes = minutes
-      result.ungrouped.minutes -= minutes
+      result.Unsorted.minutes -= minutes
     }
 
     for (let group in result) {
