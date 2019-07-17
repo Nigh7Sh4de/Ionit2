@@ -224,8 +224,8 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
   })
   let tagList = [tags.Sorted]
   while (tagList.length) {
-    const tags = tagList.pop()
-    for (let tag in tags) {
+    const next = tagList.pop()
+    for (let tag in next) {
       tagList.push(tags[tag])
       if (tags.Unsorted[tag]) delete tags.Unsorted[tag]
     }

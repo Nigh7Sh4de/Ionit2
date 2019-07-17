@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, FlatList } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { moveTag } from '../../redux/events'
+import TagTree from '../lib/TagTree'
 
 export class Tags extends Component {
   constructor(props) {
@@ -12,18 +13,6 @@ export class Tags extends Component {
     this.state = {
       selected: null,
     }
-  }
-
-  parseTree(tree, depth, unsorted) {
-    let result = []
-    for (let tag in tree) {
-      result = [
-        ...result,
-        { tag, depth, unsorted },
-        ...this.parseTree(tree[tag], depth + 1, unsorted || tag === 'Unsorted'),
-      ]
-    }
-    return result
   }
 
   selectTag(selected) {
@@ -86,11 +75,10 @@ export class Tags extends Component {
   }
 
   render() {
-    const data = this.parseTree(this.props.tags, 0, false)
     return (
       <View style={{ flex: 1 }}>
         <Text style={{ fontWeight: '600' }}>Tags</Text>
-        <FlatList data={data} renderItem={this.renderItem} />
+        <TagTree tags={this.props.tags} renderItem={this.renderItem} />
       </View>
     )
   }
