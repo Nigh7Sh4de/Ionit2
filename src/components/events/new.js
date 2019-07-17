@@ -14,6 +14,7 @@ import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
 import TagSelector from './tagSelector'
+import TagTreeSelector from './tagTreeSelector'
 import Colors from './colors'
 import {
   createGoogleCalendarEvent,
@@ -70,6 +71,7 @@ export class NewEvent extends Component {
         start: false,
         end: false,
         color: false,
+        tags: false,
       },
       loading: false,
       foundEvent,
@@ -80,6 +82,7 @@ export class NewEvent extends Component {
     this.delete = this._delete.bind(this)
     this.addTag = this._addTag.bind(this)
     this.editTag = this._editTag.bind(this)
+    this.removeTag = this._removeTag.bind(this)
   }
 
   onChangeColor(colorId) {
@@ -134,6 +137,13 @@ export class NewEvent extends Component {
       tags: tags.slice(0, -1),
     })
     return tags.slice(-1)[0]
+  }
+
+  _removeTag(tag) {
+    let { tags } = this.state
+    this.setState({
+      tags: tags.filter(x => x !== tag),
+    })
   }
 
   async _delete() {
@@ -297,6 +307,16 @@ export class NewEvent extends Component {
         </View>
         <View>
           <Text>Tags</Text>
+          <TouchableOpacity onPress={this.showDateTime.bind(this, 'tags')}>
+            <Text>Search through existing tags</Text>
+          </TouchableOpacity>
+          <TagTreeSelector
+            visible={visible.tags}
+            selected={tags}
+            onSelectTag={this.addTag.bind(this)}
+            onUnselectTag={this.removeTag.bind(this)}
+            onClose={this.hideDateTime.bind(this, 'tags')}
+          />
           {tagList}
           <TagSelector onSubmit={this.addTag} onBack={this.editTag} />
         </View>
