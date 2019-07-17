@@ -57,22 +57,18 @@ export class ListEvents extends Component {
 
     for (let i = 0; i < result.length; i++) {
       const next = moment(result[i].start.dateTime)
-      if (next > end) {
+      if (next.isAfter(start)) {
         result.splice(i++, 0, {
           blank: true,
           summary: '',
-          start: { dateTime: end.toISOString() },
+          start: { dateTime: start.toISOString() },
           end: { dateTime: next.toISOString() },
         })
       }
-      start = next
-      end = moment(result[i].end.dateTime)
+      start = moment(result[i].end.dateTime)
     }
 
     const last = moment(result[result.length - 1].end.dateTime)
-    end = moment(date)
-      .startOf('day')
-      .add(1, 'day')
     if (last < end) {
       result.push({
         blank: true,
