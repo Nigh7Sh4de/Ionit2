@@ -227,108 +227,143 @@ export class NewEvent extends Component {
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
-    const tagList = tags.map(tag => (
-      <Text key={tag} style={{ fontWeight: '600' }}>
-        {tag}
-      </Text>
-    ))
+    const tagList = tags.length ? (
+      tags.map(tag => (
+        <Text key={tag} style={{ fontWeight: '600', fontSize: 16 }}>
+          {tag}
+        </Text>
+      ))
+    ) : (
+      <Text style={{ fontSize: 14 }}>None selected</Text>
+    )
 
     if (loading) return <Text>Loading...</Text>
 
     const verb = foundEvent ? 'Update' : 'Create'
 
     return (
-      <ScrollView>
-        <Text>New Event</Text>
-        <View>
-          <Text>Start</Text>
-          <TouchableOpacity onPress={this.showDateTime.bind(this, 'start')}>
-            <Text>{_start}</Text>
-          </TouchableOpacity>
-          <DateTimePicker
-            mode="datetime"
-            date={start.toDate()}
-            isVisible={visible.start}
-            onConfirm={this.onChangeDateTime.bind(this, 'start')}
-            onCancel={this.hideDateTime.bind(this, 'start')}
-          />
-        </View>
-        <View>
-          <Text>End</Text>
-          <TouchableOpacity onPress={this.showDateTime.bind(this, 'end')}>
-            <Text>{_end}</Text>
-          </TouchableOpacity>
-          <DateTimePicker
-            mode="datetime"
-            date={end.toDate()}
-            isVisible={visible.end}
-            onConfirm={this.onChangeDateTime.bind(this, 'end')}
-            onCancel={this.hideDateTime.bind(this, 'end')}
-          />
-        </View>
-        <View>
-          <Text>Summary</Text>
-          <TextInput
-            value={summary}
-            onChangeText={this.onChangeText.bind(this, 'summary')}
-          />
-        </View>
-        <View>
-          <Text>Description</Text>
-          <TextInput
-            value={description}
-            onChangeText={this.onChangeText.bind(this, 'description')}
-          />
-        </View>
-        <View>
-          <Text>Location</Text>
-          <TextInput
-            value={location}
-            onChangeText={this.onChangeText.bind(this, 'location')}
-          />
-        </View>
-        <View>
-          <Text>Color</Text>
-          <Text>{colorId}</Text>
-          <TouchableOpacity
-            style={{
-              height: 20,
-              width: 100,
-              backgroundColor: colorId ? colors[colorId].background : 'grey',
-            }}
-            onPress={this.showDateTime.bind(this, 'color')}
-          />
-          <Colors
-            visible={visible.color}
-            colors={colors}
-            color={colorId}
-            onChangeColor={this.onChangeColor.bind(this)}
-          />
-        </View>
-        <View>
-          <Text>Tags</Text>
-          <TouchableOpacity onPress={this.showDateTime.bind(this, 'tags')}>
-            <Text>Search through existing tags</Text>
-          </TouchableOpacity>
-          <TagTreeSelector
-            visible={visible.tags}
-            selected={tags}
-            onSelectTag={this.addTag.bind(this)}
-            onUnselectTag={this.removeTag.bind(this)}
-            onClose={this.hideDateTime.bind(this, 'tags')}
-          />
-          {tagList}
-          <TagSelector onSubmit={this.addTag} onBack={this.editTag} />
-        </View>
-        <TouchableOpacity onPress={this.onPress}>
-          <Text>{verb}</Text>
+      <View style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1, paddingTop: 10 }}>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={{ alignItems: 'center' }}
+                onPress={this.showDateTime.bind(this, 'start')}
+              >
+                <Text style={{ fontSize: 16 }}>Start</Text>
+                <Text style={{ fontSize: 16 }}>{_start}</Text>
+              </TouchableOpacity>
+              <DateTimePicker
+                mode="datetime"
+                date={start.toDate()}
+                isVisible={visible.start}
+                onConfirm={this.onChangeDateTime.bind(this, 'start')}
+                onCancel={this.hideDateTime.bind(this, 'start')}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={{ alignItems: 'center' }}
+                onPress={this.showDateTime.bind(this, 'end')}
+              >
+                <Text style={{ fontSize: 16 }}>End</Text>
+                <Text style={{ fontSize: 16 }}>{_end}</Text>
+              </TouchableOpacity>
+              <DateTimePicker
+                mode="datetime"
+                date={end.toDate()}
+                isVisible={visible.end}
+                onConfirm={this.onChangeDateTime.bind(this, 'end')}
+                onCancel={this.hideDateTime.bind(this, 'end')}
+              />
+            </View>
+          </View>
+          <View style={{ margin: 20 }}>
+            <TextInput
+              value={summary}
+              onChangeText={this.onChangeText.bind(this, 'summary')}
+              placeholder="Summary"
+              style={{ fontSize: 32 }}
+            />
+            <TextInput
+              value={description}
+              onChangeText={this.onChangeText.bind(this, 'description')}
+              placeholder="Description"
+              style={{ fontSize: 16 }}
+            />
+            <TextInput
+              value={location}
+              onChangeText={this.onChangeText.bind(this, 'location')}
+              placeholder="Location"
+              style={{ fontSize: 16 }}
+            />
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={{ alignItems: 'center' }}
+                onPress={this.showDateTime.bind(this, 'color')}
+              >
+                <Text style={{ fontSize: 16 }}>Color</Text>
+                <View
+                  style={{
+                    backgroundColor: colorId
+                      ? colors[colorId].background
+                      : 'grey',
+                    height: 36,
+                    width: 36,
+                    borderRadius: 36,
+                  }}
+                />
+              </TouchableOpacity>
+              <Colors
+                visible={visible.color}
+                colors={colors}
+                color={colorId}
+                onChangeColor={this.onChangeColor.bind(this)}
+              />
+            </View>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <TouchableOpacity
+                style={{ alignItems: 'center' }}
+                onPress={this.showDateTime.bind(this, 'tags')}
+              >
+                <Text style={{ fontSize: 16 }}>Tags</Text>
+                {tagList}
+              </TouchableOpacity>
+              <TagTreeSelector
+                visible={visible.tags}
+                selected={tags}
+                onSelectTag={this.addTag.bind(this)}
+                onUnselectTag={this.removeTag.bind(this)}
+                onClose={this.hideDateTime.bind(this, 'tags')}
+              />
+              <TagSelector onSubmit={this.addTag} onBack={this.editTag} />
+            </View>
+          </View>
+        </ScrollView>
+        <TouchableOpacity
+          style={{
+            paddingVertical: 15,
+            backgroundColor: '#5095ef',
+            alignItems: 'center',
+          }}
+          onPress={this.onPress}
+        >
+          <Text style={{ color: '#ffffff', fontSize: 16 }}>{verb}</Text>
         </TouchableOpacity>
         {foundEvent && (
-          <TouchableOpacity onPress={this.delete}>
-            <Text>Delete</Text>
+          <TouchableOpacity
+            style={{
+              paddingVertical: 15,
+              alignItems: 'center',
+            }}
+            onPress={this.delete}
+          >
+            <Text style={{ color: '#ff0000' }}>Delete</Text>
           </TouchableOpacity>
         )}
-      </ScrollView>
+      </View>
     )
   }
 }
