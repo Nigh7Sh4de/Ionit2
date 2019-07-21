@@ -16,7 +16,7 @@ export class Settings extends Component {
 
     return (
       <View style={{ flex: 1 }}>
-        <Route path="/settings" component={Nav} />
+        <Route exact path="/settings" component={Nav} />
         <Route exact path="/settings/calendars" component={Calendars} />
         <Route exact path="/settings/interval" component={Interval} />
         <Route exact path="/settings/tags" component={Tags} />

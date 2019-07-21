@@ -7,24 +7,26 @@ export class SettingsNav extends Component {
   render() {
     return (
       <View>
-        <Text>Settings</Text>
         <Link
+          push
           to="/settings/calendars"
-          style={{ borderWidth: 1 }}
+          style={{ paddingVertical: 15 }}
           component={TouchableOpacity}
         >
           <Text>Calendars</Text>
         </Link>
         <Link
+          push
           to="/settings/interval"
-          style={{ borderWidth: 1 }}
+          style={{ paddingVertical: 15 }}
           component={TouchableOpacity}
         >
           <Text>Interval</Text>
         </Link>
         <Link
+          push
           to="/settings/tags"
-          style={{ borderWidth: 1 }}
+          style={{ paddingVertical: 15 }}
           component={TouchableOpacity}
         >
           <Text>Tags</Text>

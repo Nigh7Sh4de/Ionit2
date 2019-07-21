@@ -141,7 +141,10 @@ export class CreateReport extends Component {
             value={group}
             onChangeText={this.onChangeGroupName.bind(this, group)}
           />
-          <TouchableOpacity onPress={this.showDateTime.bind(this, 'tags')}>
+          <TouchableOpacity
+            style={{ paddingVertical: 15 }}
+            onPress={this.showDateTime.bind(this, 'tags')}
+          >
             <Text>Search through existing tags</Text>
           </TouchableOpacity>
           <TagTreeSelector
@@ -162,37 +165,51 @@ export class CreateReport extends Component {
           Select date range and create groups of tags you would like to be
           presented together.
         </Text>
-        <View>
-          <Text>Start</Text>
-          <TouchableOpacity onPress={this.showDateTime.bind(this, 'start')}>
-            <Text>{_start}</Text>
-          </TouchableOpacity>
-          <DateTimePicker
-            mode="datetime"
-            date={start.toDate()}
-            isVisible={visible.start}
-            onConfirm={this.onChangeDateTime.bind(this, 'start')}
-            onCancel={this.hideDateTime.bind(this, 'start')}
-          />
-        </View>
-        <View>
-          <Text>End</Text>
-          <TouchableOpacity onPress={this.showDateTime.bind(this, 'end')}>
-            <Text>{_end}</Text>
-          </TouchableOpacity>
-          <DateTimePicker
-            mode="datetime"
-            date={end.toDate()}
-            isVisible={visible.end}
-            onConfirm={this.onChangeDateTime.bind(this, 'end')}
-            onCancel={this.hideDateTime.bind(this, 'end')}
-          />
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: 'center' }}
+              onPress={this.showDateTime.bind(this, 'start')}
+            >
+              <Text style={{ fontSize: 16 }}>Start</Text>
+              <Text style={{ fontSize: 16 }}>{_start}</Text>
+            </TouchableOpacity>
+            <DateTimePicker
+              mode="datetime"
+              date={start.toDate()}
+              isVisible={visible.start}
+              onConfirm={this.onChangeDateTime.bind(this, 'start')}
+              onCancel={this.hideDateTime.bind(this, 'start')}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: 'center' }}
+              onPress={this.showDateTime.bind(this, 'end')}
+            >
+              <Text style={{ fontSize: 16 }}>End</Text>
+              <Text style={{ fontSize: 16 }}>{_end}</Text>
+            </TouchableOpacity>
+            <DateTimePicker
+              mode="datetime"
+              date={end.toDate()}
+              isVisible={visible.end}
+              onConfirm={this.onChangeDateTime.bind(this, 'end')}
+              onCancel={this.hideDateTime.bind(this, 'end')}
+            />
+          </View>
         </View>
         {groupSetup}
-        <TouchableOpacity onPress={this.addGroup}>
+        <TouchableOpacity
+          style={{ paddingVertical: 15 }}
+          onPress={this.addGroup}
+        >
           <Text>Add Group</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.onPress}>
+        <TouchableOpacity
+          style={{ paddingVertical: 15 }}
+          onPress={this.onPress}
+        >
           <Text>GO!</Text>
         </TouchableOpacity>
       </ScrollView>

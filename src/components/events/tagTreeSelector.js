@@ -18,13 +18,19 @@ export class TagTreeSelector extends Component {
     if (item.depth > 0) {
       if (!item.selected) {
         button = (
-          <TouchableOpacity onPress={this.onSelectTag.bind(this, item.tag)}>
+          <TouchableOpacity
+            style={{ paddingVertical: 15 }}
+            onPress={this.onSelectTag.bind(this, item.tag)}
+          >
             <Text>Add</Text>
           </TouchableOpacity>
         )
       } else {
         button = (
-          <TouchableOpacity onPress={this.onUnselectTag.bind(this, item.tag)}>
+          <TouchableOpacity
+            style={{ paddingVertical: 15 }}
+            onPress={this.onUnselectTag.bind(this, item.tag)}
+          >
             <Text>Remove</Text>
           </TouchableOpacity>
         )
@@ -53,7 +59,10 @@ export class TagTreeSelector extends Component {
     return (
       <Modal visible={this.props.visible} onRequestClose={this.props.onClose}>
         <FlatList data={data} renderItem={this.renderItem} />
-        <TouchableOpacity onPress={this.props.onClose}>
+        <TouchableOpacity
+          style={{ paddingVertical: 15 }}
+          onPress={this.props.onClose}
+        >
           <Text>Done</Text>
         </TouchableOpacity>
       </Modal>
