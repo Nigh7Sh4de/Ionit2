@@ -13,9 +13,7 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
-import TagSelector from './tagSelector'
 import TagTreeSelector from './tagTreeSelector'
-import Colors from './colors'
 import {
   createGoogleCalendarEvent,
   patchGoogleCalendarEvent,
@@ -212,16 +210,12 @@ export class NewEvent extends Component {
   }
 
   render() {
-    const { colors } = this.props
     const {
       visible,
       loading,
       start,
       end,
       summary,
-      description,
-      location,
-      colorId,
       foundEvent,
       tags,
     } = this.state
@@ -234,7 +228,7 @@ export class NewEvent extends Component {
         </Text>
       ))
     ) : (
-      <Text style={{ fontSize: 14 }}>None selected</Text>
+      <Text style={{ fontSize: 16 }}>None selected</Text>
     )
 
     if (loading) return <Text>Loading...</Text>
@@ -244,7 +238,25 @@ export class NewEvent extends Component {
     return (
       <View style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1, paddingTop: 10 }}>
-          <View style={{ flexDirection: 'row' }}>
+          <View
+            style={{
+              alignItems: 'center',
+              padding: 15,
+            }}
+          >
+            <TextInput
+              value={summary}
+              onChangeText={this.onChangeText.bind(this, 'summary')}
+              placeholder="Summary"
+              style={{ fontSize: 32 }}
+            />
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              padding: 15,
+            }}
+          >
             <View style={{ flex: 1 }}>
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
@@ -278,68 +290,21 @@ export class NewEvent extends Component {
               />
             </View>
           </View>
-          <View style={{ margin: 20 }}>
-            <TextInput
-              value={summary}
-              onChangeText={this.onChangeText.bind(this, 'summary')}
-              placeholder="Summary"
-              style={{ fontSize: 32 }}
+          <View style={{ padding: 15 }}>
+            <TouchableOpacity
+              style={{ alignItems: 'center' }}
+              onPress={this.showDateTime.bind(this, 'tags')}
+            >
+              <Text style={{ fontSize: 16 }}>Tags</Text>
+              {tagList}
+            </TouchableOpacity>
+            <TagTreeSelector
+              visible={visible.tags}
+              selected={tags}
+              onSelectTag={this.addTag.bind(this)}
+              onUnselectTag={this.removeTag.bind(this)}
+              onClose={this.hideDateTime.bind(this, 'tags')}
             />
-            <TextInput
-              value={description}
-              onChangeText={this.onChangeText.bind(this, 'description')}
-              placeholder="Description"
-              style={{ fontSize: 16 }}
-            />
-            <TextInput
-              value={location}
-              onChangeText={this.onChangeText.bind(this, 'location')}
-              placeholder="Location"
-              style={{ fontSize: 16 }}
-            />
-          </View>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={{ flex: 1 }}>
-              <TouchableOpacity
-                style={{ alignItems: 'center' }}
-                onPress={this.showDateTime.bind(this, 'color')}
-              >
-                <Text style={{ fontSize: 16 }}>Color</Text>
-                <View
-                  style={{
-                    backgroundColor: colorId
-                      ? colors[colorId].background
-                      : 'grey',
-                    height: 36,
-                    width: 36,
-                    borderRadius: 36,
-                  }}
-                />
-              </TouchableOpacity>
-              <Colors
-                visible={visible.color}
-                colors={colors}
-                color={colorId}
-                onChangeColor={this.onChangeColor.bind(this)}
-              />
-            </View>
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <TouchableOpacity
-                style={{ alignItems: 'center' }}
-                onPress={this.showDateTime.bind(this, 'tags')}
-              >
-                <Text style={{ fontSize: 16 }}>Tags</Text>
-                {tagList}
-              </TouchableOpacity>
-              <TagTreeSelector
-                visible={visible.tags}
-                selected={tags}
-                onSelectTag={this.addTag.bind(this)}
-                onUnselectTag={this.removeTag.bind(this)}
-                onClose={this.hideDateTime.bind(this, 'tags')}
-              />
-              <TagSelector onSubmit={this.addTag} onBack={this.editTag} />
-            </View>
           </View>
         </ScrollView>
         <TouchableOpacity
@@ -371,7 +336,6 @@ export class NewEvent extends Component {
 function mapStateToProps(state) {
   return {
     events: state.events.data,
-    colors: state.colors.event,
   }
 }
 
