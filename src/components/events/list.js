@@ -84,10 +84,6 @@ export class ListEvents extends Component {
   render() {
     const { events, context } = this.props
     const { date } = context
-    if (!events.length) {
-      return <Text>You have no events!</Text>
-    }
-
     const renderedEvents = this.filterEvents(events, date).map(event => (
       <AgendaItem
         key={event.id || event.start.dateTime}

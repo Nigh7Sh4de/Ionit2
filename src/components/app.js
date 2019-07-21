@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { SafeAreaView, View } from 'react-native'
+import { SafeAreaView, View, KeyboardAvoidingView } from 'react-native'
 import { NativeRouter as Router, Route, BackButton } from 'react-router-native'
 import { createStore, applyMiddleware } from 'redux'
 import { persistStore, persistReducer } from 'redux-persist'
@@ -34,20 +34,20 @@ const persistor = persistStore(store)
 export default class App extends Component {
   render() {
     return (
-      <View style={{ flexGrow: 1 }}>
+      <View style={{ flexGrow: 1, backgroundColor: '#ffffff' }}>
         <Provider store={store}>
           <PersistGate persistor={persistor}>
             <SafeAreaView style={{ flex: 1 }}>
               <Router>
-                <View style={{ flex: 1 }}>
-                  <BackButton />
+                <BackButton />
+                <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
                   <Route path="/" component={RedirectGate} />
                   <Route path="/login" component={Login} />
                   <Route path="/settings" component={Settings} />
                   <Route path="/events" component={Events} />
                   <Route path="/reports" component={Reports} />
                   <Route path="/times" component={Times} />
-                </View>
+                </KeyboardAvoidingView>
                 <Nav />
                 <FlashMessage position={{ bottom: 60 }} />
               </Router>
