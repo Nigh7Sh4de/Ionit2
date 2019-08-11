@@ -1,4 +1,4 @@
-import { getColors } from './google'
+import { getColors } from '../lib/google'
 
 export const SET_COLORS = 'SET_COLORS'
 

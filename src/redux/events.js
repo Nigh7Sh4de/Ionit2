@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { getEvents } from './google'
+import { getEvents } from '../lib/google'
 import { addCall, processQueue } from './calls'
 import { showMessage } from 'react-native-flash-message'
 

@@ -1,5 +1,5 @@
 import { Alert } from 'react-native'
-import * as Google from './google'
+import * as Google from '../lib/google'
 import { showMessage } from 'react-native-flash-message'
 
 export const ADD_CALL = 'ADD_CALL'

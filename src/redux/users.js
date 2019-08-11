@@ -1,4 +1,4 @@
-import * as Google from './google'
+import * as Google from '../lib/google'
 
 const SET_USER = 'SET_USER'
 

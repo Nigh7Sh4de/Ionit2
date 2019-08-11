@@ -1,4 +1,4 @@
-import { getCalendars } from './google'
+import { getCalendars } from '../lib/google'
 
 export const SET_CALENDARS = 'SET_CALENDARS'
 
