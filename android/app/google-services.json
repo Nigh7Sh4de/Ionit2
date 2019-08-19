@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "766343695982-rp1ipsl3vqstcff39tu7ak3ej43q38bv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ionit",
+            "certificate_hash": "7d2c5c10be72ad2e96a1c88fbe6a1e07f20f96f2"
+          }
+        },
+        {
           "client_id": "766343695982-mus9vl1aooh8hdjug8k5bfu5jcndr7sj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
