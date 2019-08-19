@@ -6,18 +6,32 @@ import { bindActionCreators } from 'redux'
 import { setSettingsInterval } from '../../redux/settings'
 
 export class Interval extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      interval: this.props.interval.toString(),
+    }
+  }
   onChangeInterval = value => {
+    this.setState({
+      interval: value,
+    })
+
     const interval = parseInt(value)
-    if (interval != NaN) {
+    if (interval < 15) {
+      this.props.setSettingsInterval(15)
+    }
+    else if (interval >= 15) {
       this.props.setSettingsInterval(interval)
     }
   }
 
   render() {
-    const { interval } = this.props
+    const { interval } = this.state
     return (
       <View style={{ flex: 1 }}>
-        <Text>Set interval for calendar view (in minutes)</Text>
+        <Text>Set interval for calendar view (in minutes, minimum 15)</Text>
         <TextInput
           value={interval.toString()}
           onChangeText={this.onChangeInterval}
