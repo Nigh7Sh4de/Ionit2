@@ -53,24 +53,25 @@ export async function getColors() {
   return colors
 }
 
-export async function getEvents({ calendar, timeMin, timeMax }) {
+export async function getEvents({ calendar, timeMin, timeMax, pageToken }) {
   const { accessToken } = await GoogleSignin.getTokens()
+  const start = moment(timeMin).toISOString()
+  const end = moment(timeMax).toISOString()
+  let url = `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events?timeMin=${start}&timeMax=${end}&singleEvents=true`
+  if (pageToken) {
+    url += `&pageToken=${pageToken}`
+  }
 
-  timeMin = moment(timeMin).toISOString()
-  timeMax = moment(timeMax).toISOString()
-  const response = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  )
-  const error = ({ items } = await response.json())
-  if (items) return items
-  else throw error
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+  const json = await response.json()
+  if (json.items) return json
+  else throw json
 }
 
 export async function createEvent({ calendar, event }) {

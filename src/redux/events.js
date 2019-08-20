@@ -89,22 +89,31 @@ export function getGoogleCalendarEvents({ start, end, force }) {
 
     for (let calendar of calendars.incoming) {
       console.log({ calendar })
-      try {
-        const newEvents = await getEvents({ calendar, timeMin, timeMax })
-        console.log({ newEvents })
-        dispatch(
-          saveEvents(
-            newEvents.map(event => ({
-              ...event,
-              calendar,
-            })),
+      let pageToken = undefined
+      do {
+        try {
+          const response = await getEvents({
+            calendar,
             timeMin,
-            timeMax
+            timeMax,
+            pageToken,
+          })
+          console.log({ response })
+          pageToken = response.nextPageToken
+          dispatch(
+            saveEvents(
+              response.items.map(event => ({
+                ...event,
+                calendar,
+              })),
+              timeMin,
+              timeMax
+            )
           )
-        )
-      } catch (error) {
-        console.log({ error })
-      }
+        } catch (error) {
+          console.log({ error })
+        }
+      } while (pageToken)
     }
     console.groupEnd()
   }
