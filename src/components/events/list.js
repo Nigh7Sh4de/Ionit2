@@ -84,13 +84,15 @@ export class ListEvents extends Component {
   render() {
     const { events, context } = this.props
     const { date } = context
-    const renderedEvents = this.filterEvents(events, date).map(event => (
-      <AgendaItem
-        key={event.id || event.start.dateTime}
-        date={date}
-        item={event}
-      />
-    ))
+    const renderedEvents = this.filterEvents(Object.values(events), date).map(
+      event => (
+        <AgendaItem
+          key={event.id || event.start.dateTime}
+          date={date}
+          item={event}
+        />
+      )
+    )
 
     return (
       <View style={{ flex: 1 }}>

@@ -21,7 +21,7 @@ export class ViewReport extends Component {
       }
     }
 
-    const filteredEvents = events.filter(
+    const filteredEvents = Object.values(events).filter(
       event =>
         moment(event.start.dateTime).isSameOrAfter(start) &&
         moment(event.end.dateTime).isSameOrBefore(end)

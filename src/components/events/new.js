@@ -44,7 +44,7 @@ export class NewEvent extends Component {
         tags: [],
       }
     } else {
-      foundEvent = events.find(e => e.id === id)
+      foundEvent = events[id]
       let tags = []
       if (
         foundEvent.extendedProperties &&
