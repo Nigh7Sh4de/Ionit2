@@ -73,10 +73,7 @@ export class Events extends Component {
 }
 
 function mapStateToProps(state) {
-  return {
-    events: state.events.data,
-    lastFetch: state.events.lastFetch,
-  }
+  return {}
 }
 
 function mapDispatchToProps(dispatch) {
