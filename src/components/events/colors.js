@@ -1,13 +1,6 @@
 import React, { Component } from 'react'
 import { ScrollView, Text, TouchableOpacity, Modal } from 'react-native'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
-import {
-  createGoogleCalendarEvent,
-  patchGoogleCalendarEvent,
-  deleteGoogleCalendarEvent,
-} from '../../redux/events'
 
 export class Colors extends Component {
   onChangeColor(color) {
@@ -58,23 +51,8 @@ export class Colors extends Component {
 
 function mapStateToProps(state) {
   return {
-    events: state.events.data,
     colors: state.colors.event,
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      createGoogleCalendarEvent,
-      patchGoogleCalendarEvent,
-      deleteGoogleCalendarEvent,
-    },
-    dispatch
-  )
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Colors)
+export default connect(mapStateToProps)(Colors)
