@@ -248,27 +248,32 @@ function massageEventsResponse(state, { events, timeMin, timeMax }) {
 function addOfflineEvent(state, { event, calendar }) {
   return {
     ...state,
-    data: [
+    data: {
       ...state.data,
-      {
+      [event.id]: {
         ...event,
         calendar,
       },
-    ],
+    },
   }
 }
 
 function updateOfflineEvent(state, { event }) {
   return {
     ...state,
-    data: state.data.map(e => (e.id === event.id ? event : e)),
+    data: {
+      ...state.data,
+      [event.id]: event,
+    },
   }
 }
 
-function deleteOfflineEvent(state, { event: { id } }) {
+function deleteOfflineEvent(state, { event }) {
+  const data = { ...state.data }
+  delete data[event.id]
   return {
     ...state,
-    data: state.data.filter(event => event.id !== id),
+    data,
   }
 }
 
