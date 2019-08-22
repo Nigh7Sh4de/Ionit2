@@ -73,12 +73,12 @@ export async function getEvents({ calendar, timeMin, timeMax }) {
       },
     })
     const json = await response.json()
+    console.log({ json })
     if (!json.items) {
       throw json
-    } else if (json.nextPageToken) {
-      pageToken = json.nextPageToken
     }
     items = [...items, ...json.items]
+    pageToken = json.nextPageToken
   } while (pageToken)
   return items
 }

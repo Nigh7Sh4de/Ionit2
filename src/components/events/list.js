@@ -10,24 +10,6 @@ import AgendaItem from './item'
 import asCalendarConsumer from 'react-native-calendars/src/expandableCalendar/asCalendarConsumer'
 
 export class ListEvents extends Component {
-  componentDidMount() {
-    if (!this.props.events.length) {
-      const dateString = moment.now()
-      this.fetchEvents({ dateString })
-    }
-  }
-
-  async fetchEvents({ dateString }) {
-    const start = moment(dateString)
-      .startOf('month')
-      .subtract(1, 'month')
-    const end = moment(dateString)
-      .startOf('month')
-      .add(3, 'month')
-
-    await this.props.getGoogleCalendarEvents({ start, end })
-  }
-
   filterEvents(events, date) {
     let start = moment(date).startOf('day')
     let end = moment(date)
