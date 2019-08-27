@@ -55,6 +55,7 @@ export class TagTreeSelector extends Component {
     const data = this.props.tagList.map(item => ({
       ...item,
       selected: this.props.selected.indexOf(item.tag) >= 0,
+      key: item.tag,
     }))
     return (
       <Modal visible={this.props.visible} onRequestClose={this.props.onClose}>
@@ -72,7 +73,7 @@ export class TagTreeSelector extends Component {
 
 function mapStateToProps(state) {
   return {
-    tags: state.events.tags,
+    tags: state.tags.data,
   }
 }
 

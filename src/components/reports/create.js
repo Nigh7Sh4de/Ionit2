@@ -219,7 +219,7 @@ export class CreateReport extends Component {
 
 function mapStateToProps(state) {
   return {
-    tags: state.events.tags,
+    tags: state.tags.data,
   }
 }
 

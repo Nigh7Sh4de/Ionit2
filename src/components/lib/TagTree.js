@@ -1,12 +1,12 @@
 import React from 'react'
 
-export function parseTree(tree, depth, unsorted) {
+export function parseTree(tags, depth, unsorted) {
   let result = []
-  for (let tag in tree) {
+  for (let tag in tags) {
     result = [
       ...result,
       { tag, depth, unsorted },
-      ...parseTree(tree[tag], depth + 1, unsorted || tag === 'Unsorted'),
+      ...parseTree(tags[tag].tags, depth + 1, unsorted || tag === 'Unsorted'),
     ]
   }
   return result
