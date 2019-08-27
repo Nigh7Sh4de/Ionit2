@@ -1,11 +1,28 @@
 import { SAVE_EVENTS, ADD_EVENT, UPDATE_EVENT, DELETE_EVENT } from './events'
 export const MOVE_TAG = 'MOVE_TAG'
+export const SET_KEYWORD = 'SET_KEYWORD'
+export const DELETE_KEYWORD = 'DELETE_KEYWORD'
 
 export function moveTag({ src, dst }) {
   return {
     type: MOVE_TAG,
     src,
     dst,
+  }
+}
+
+export function setKeyword({ keyword, tags }) {
+  return {
+    type: SET_KEYWORD,
+    keyword,
+    tags,
+  }
+}
+
+export function deleteKeyword({ keyword }) {
+  return {
+    type: DELETE_KEYWORD,
+    keyword,
   }
 }
 
@@ -37,6 +54,10 @@ export default function reducer(state = initialState, action) {
       return removeEventTags(state, action)
     case MOVE_TAG:
       return processMoveTag(state, action)
+    case SET_KEYWORD:
+      return processSetKeyword(state, action)
+    case DELETE_KEYWORD:
+      return processDeleteKeyword(state, action)
     default:
       return state
   }
@@ -214,5 +235,24 @@ function processMoveTag(state, { src, dst }) {
   return {
     ...state,
     data: tags,
+  }
+}
+
+function processSetKeyword(state, { keyword, tags }) {
+  return {
+    ...state,
+    keywords: {
+      ...state.keywords,
+      [keyword]: tags,
+    },
+  }
+}
+
+function processDeleteKeyword(state, { keyword }) {
+  const keywords = { ...state.keywords }
+  delete keywords[keyword]
+  return {
+    ...state,
+    keywords,
   }
 }
