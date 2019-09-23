@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import { SafeAreaView, View, KeyboardAvoidingView } from 'react-native'
 import { NativeRouter as Router, Route, BackButton } from 'react-router-native'
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
+import { reduxFirestore, getFirestore } from 'redux-firestore'
+import firebase from 'react-native-firebase'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import { Provider } from 'react-redux'
@@ -19,6 +21,9 @@ import { PersistGate } from 'redux-persist/integration/react'
 import RedirectGate from './login/redirectGate'
 import FlashMessage from 'react-native-flash-message'
 
+firebase.initializeApp()
+firebase.firestore()
+
 const persistConfig = {
   key: 'ionit',
   storage,
@@ -27,8 +32,14 @@ const persistConfig = {
 
 const store = createStore(
   persistReducer(persistConfig, reducers),
-  applyMiddleware(Thunk, Logger)
+  compose(
+    reduxFirestore(firebase),
+    applyMiddleware(Thunk.withExtraArgument({ getFirestore }), Logger)
+  )
 )
+store.firestore.setListeners([{ collection: 'keywords' }])
+store.firestore.get('keywords')
+
 const persistor = persistStore(store)
 
 export default class App extends Component {

@@ -12,6 +12,7 @@ export class Login extends Component {
 
     this.signIn = this._signIn.bind(this)
   }
+
   async componentDidMount() {
     await this.props.initialize()
     await this.props.signInSilently()
