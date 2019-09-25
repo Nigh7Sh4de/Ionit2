@@ -1,9 +1,18 @@
 import { SAVE_EVENTS, ADD_EVENT, UPDATE_EVENT, DELETE_EVENT } from './events'
 export const MOVE_TAG = 'MOVE_TAG'
 
-export function createKeyword(keyword) {
+export function setKeyword(keyword) {
   return (dispatch, getState, { getFirestore }) => {
-    getFirestore().add({ collection: 'keywords' }, keyword)
+    getFirestore().set(
+      { collection: 'keywords', doc: keyword.keyword },
+      keyword
+    )
+  }
+}
+
+export function unsetKeyword(keyword) {
+  return (dispatch, getState, { getFirestore }) => {
+    getFirestore().delete({ collection: 'keywords', doc: keyword })
   }
 }
 

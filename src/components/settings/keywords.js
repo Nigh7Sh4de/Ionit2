@@ -9,8 +9,9 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { createKeyword } from '../../redux/tags'
+import { setKeyword, unsetKeyword } from '../../redux/tags'
 import { asTagTreeConsumer } from '../lib/TagTree'
+import KeywordEdit from './keywordEdit'
 
 export class Tags extends Component {
   constructor(props) {
@@ -30,44 +31,30 @@ export class Tags extends Component {
     })
   }
 
-  async create() {
-    const { keyword, tags } = this.state.new
-    await this.props.createKeyword({
-      keyword,
-      tags,
-    })
+  async create(keyword) {
+    await this.props.setKeyword(keyword)
+  }
+
+  async delete(keyword) {
+    await this.props.unsetKeyword(keyword)
   }
 
   render() {
     return (
       <ScrollView>
         <Text>
-          Create "keywords" for identifying words in the subject of your events
-          thatt will enable tags to be automatically added to the event
+          Add words for that you commonly use in the subject of your events. The
+          tags associated with these words will be automatically added as you
+          create new events.
         </Text>
-        <View>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={{ width: 150 }}>
-              <TextInput
-                value={this.state.new.keyword}
-                onChangeText={this.onChangeText.bind(this, 'new', 'keyword')}
-                placeholder="Keyword"
-                style={{ fontSize: 24 }}
-              />
-            </View>
-            <TextInput
-              value={this.state.new.tags}
-              onChangeText={this.onChangeText.bind(this, 'new', 'tags')}
-              placeholder="Tags"
-              style={{ fontSize: 24 }}
-            />
-          </View>
-          <TouchableOpacity onPress={this.create.bind(this)}>
-            <Text>+ Create</Text>
-          </TouchableOpacity>
-        </View>
+        <KeywordEdit setKeyword={this.create.bind(this)} />
         {this.props.keywords.map(keyword => (
-          <Text key={keyword.id}>{JSON.stringify(keyword)}</Text>
+          <KeywordEdit
+            key={keyword.id}
+            setKeyword={this.create.bind(this)}
+            unsetKeyword={this.delete.bind(this)}
+            {...keyword}
+          />
         ))}
       </ScrollView>
     )
@@ -81,7 +68,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createKeyword }, dispatch)
+  return bindActionCreators({ setKeyword, unsetKeyword }, dispatch)
 }
 
 export default connect(
