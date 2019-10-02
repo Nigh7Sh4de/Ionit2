@@ -13,7 +13,8 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
-import TagTreeSelector from './tagTreeSelector'
+import Tag from './tag'
+import TagSelector from './tagSelector'
 import {
   createGoogleCalendarEvent,
   patchGoogleCalendarEvent,
@@ -91,8 +92,21 @@ export class NewEvent extends Component {
   }
 
   onChangeText(field, value) {
+    let tags = this.state.tags
+    if (field === 'summary') {
+      const values = value.split(' ')
+      values.forEach(word => {
+        if (this.props.keywords[word]) {
+          tags = tags.concat(this.props.keywords[word].tags)
+        }
+      })
+      const mergedTags = {}
+      tags.forEach(tag => (mergedTags[tag] = true))
+      tags = Object.keys(mergedTags)
+    }
     this.setState({
       [field]: value,
+      tags,
     })
   }
 
@@ -221,15 +235,9 @@ export class NewEvent extends Component {
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
-    const tagList = tags.length ? (
-      tags.map(tag => (
-        <Text key={tag} style={{ fontWeight: '600', fontSize: 16 }}>
-          {tag}
-        </Text>
-      ))
-    ) : (
-      <Text style={{ fontSize: 16 }}>None selected</Text>
-    )
+    const tagList = tags.map(tag => (
+      <Tag tag={tag} key={tag} onPress={this.removeTag.bind(this, tag)} />
+    ))
 
     if (loading) return <Text>Loading...</Text>
 
@@ -248,7 +256,7 @@ export class NewEvent extends Component {
               value={summary}
               onChangeText={this.onChangeText.bind(this, 'summary')}
               placeholder="Summary"
-              style={{ fontSize: 32 }}
+              style={{ fontSize: 32, textAlign: 'center' }}
             />
           </View>
           <View
@@ -290,21 +298,16 @@ export class NewEvent extends Component {
               />
             </View>
           </View>
-          <View style={{ padding: 15 }}>
-            <TouchableOpacity
-              style={{ alignItems: 'center' }}
-              onPress={this.showDateTime.bind(this, 'tags')}
-            >
-              <Text style={{ fontSize: 16 }}>Tags</Text>
+          <View style={{ padding: 15, alignItems: 'center' }}>
+            <Text style={{ fontSize: 16 }}>Tags</Text>
+            <View style={{ flexDirection: 'row' }}>
               {tagList}
-            </TouchableOpacity>
-            <TagTreeSelector
-              visible={visible.tags}
-              selected={tags}
-              onSelectTag={this.addTag.bind(this)}
-              onUnselectTag={this.removeTag.bind(this)}
-              onClose={this.hideDateTime.bind(this, 'tags')}
-            />
+              <TagSelector
+                placeholder="+"
+                onSubmit={this.addTag.bind(this)}
+                onBack={this.editTag.bind(this)}
+              />
+            </View>
           </View>
         </ScrollView>
         <TouchableOpacity
@@ -336,6 +339,7 @@ export class NewEvent extends Component {
 function mapStateToProps(state) {
   return {
     events: state.events.data,
+    keywords: state.firestore.data.keywords,
   }
 }
 
