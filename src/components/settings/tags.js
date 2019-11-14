@@ -82,6 +82,9 @@ export class Tags extends Component {
     return (
       <View style={{ flex: 1 }}>
         <Text style={{ fontWeight: '600' }}>Tags</Text>
+        <Text style={{ color: 'red' }}>
+          This is going to be deprecated soon
+        </Text>
         <FlatList data={tagList} renderItem={this.renderItem} />
       </View>
     )

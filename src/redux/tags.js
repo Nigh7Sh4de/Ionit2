@@ -16,7 +16,9 @@ export function unsetKeyword(keyword) {
   }
 }
 
+//TODO<: Deprecate this after 2020-01-01
 export function moveTag({ src, dst }) {
+  console.warn('This is going to be deprecated soon')
   return {
     type: MOVE_TAG,
     src,
@@ -25,6 +27,7 @@ export function moveTag({ src, dst }) {
 }
 
 const initialState = {
+  //TODO<: Deprecate data after 2020-01-01
   data: {
     Sorted: {
       name: 'Sorted',
@@ -36,6 +39,7 @@ const initialState = {
       events: {},
       tags: {},
     },
+    warning: 'This is going to be deprecated soon',
   },
   keywords: {},
 }

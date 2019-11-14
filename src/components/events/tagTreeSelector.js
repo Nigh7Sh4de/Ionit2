@@ -59,6 +59,9 @@ export class TagTreeSelector extends Component {
     }))
     return (
       <Modal visible={this.props.visible} onRequestClose={this.props.onClose}>
+        <Text style={{ color: 'red' }}>
+          This is going to be deprecated soon
+        </Text>
         <FlatList data={data} renderItem={this.renderItem} />
         <TouchableOpacity
           style={{ paddingVertical: 15 }}
