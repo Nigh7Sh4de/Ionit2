@@ -16,7 +16,6 @@ import Login from './login'
 import Settings from './settings'
 import Events from './events'
 import Reports from './reports'
-import Times from './times'
 import { PersistGate } from 'redux-persist/integration/react'
 import RedirectGate from './login/redirectGate'
 import FlashMessage from 'react-native-flash-message'
@@ -57,7 +56,6 @@ export default class App extends Component {
                   <Route path="/settings" component={Settings} />
                   <Route path="/events" component={Events} />
                   <Route path="/reports" component={Reports} />
-                  <Route path="/times" component={Times} />
                 </KeyboardAvoidingView>
                 <Nav />
                 <FlashMessage position={{ bottom: 60 }} />
