@@ -63,7 +63,7 @@ export class Events extends Component {
         date={moment().format('YYYY-MM-DD')}
         onDateChanged={this.onDateChanged}
       >
-        <ExpandableCalendar allowShadow={false} />
+        <ExpandableCalendar allowShadow={false} firstDay={1} />
         {redirect}
         <Route exact path="/events" component={ListEvents} />
         <Route exact path="/events/:id" component={NewEvent} />

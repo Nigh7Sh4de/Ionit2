@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import { View, Text, ScrollView } from 'react-native'
-import { ExpandableCalendar } from 'react-native-calendars'
+import asCalendarConsumer from 'react-native-calendars/src/expandableCalendar/asCalendarConsumer'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import moment from 'moment'
 import { getGoogleCalendarEvents } from '../../redux/events'
 
 import AgendaItem from './item'
-import asCalendarConsumer from 'react-native-calendars/src/expandableCalendar/asCalendarConsumer'
 
 export class ListEvents extends Component {
   filterEvents(events, date) {
