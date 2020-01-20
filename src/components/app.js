@@ -1,45 +1,17 @@
 import React, { Component } from 'react'
 import { SafeAreaView, View, KeyboardAvoidingView } from 'react-native'
 import { NativeRouter as Router, Route, BackButton } from 'react-router-native'
-import { createStore, applyMiddleware, compose } from 'redux'
-import { reduxFirestore, getFirestore } from 'redux-firestore'
-import firebase from 'react-native-firebase'
-import { persistStore, persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
 import { Provider } from 'react-redux'
-import Logger from 'redux-logger'
-import Thunk from 'redux-thunk'
-import reducers from '../redux'
+import { PersistGate } from 'redux-persist/integration/react'
+import FlashMessage from 'react-native-flash-message'
 
 import Nav from './nav'
 import Login from './login'
+import RedirectGate from './login/redirectGate'
 import Settings from './settings'
 import Events from './events'
 import Reports from './reports'
-import { PersistGate } from 'redux-persist/integration/react'
-import RedirectGate from './login/redirectGate'
-import FlashMessage from 'react-native-flash-message'
-
-firebase.initializeApp()
-firebase.firestore()
-
-const persistConfig = {
-  key: 'ionit',
-  storage,
-  blacklist: ['events.lastFetch'],
-}
-
-const store = createStore(
-  persistReducer(persistConfig, reducers),
-  compose(
-    reduxFirestore(firebase),
-    applyMiddleware(Thunk.withExtraArgument({ getFirestore }), Logger)
-  )
-)
-store.firestore.setListeners([{ collection: 'keywords' }])
-store.firestore.get('keywords')
-
-const persistor = persistStore(store)
+import { store, persistor } from '../lib/store'
 
 export default class App extends Component {
   render() {
