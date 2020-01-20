@@ -16,6 +16,21 @@ export function unsetKeyword(keyword) {
   }
 }
 
+export function addCategory(category) {
+  return (dispatch, getState, { getFirestore }) => {
+    getFirestore().set(
+      { collection: 'categories', doc: category.category },
+      category
+    )
+  }
+}
+
+export function deleteCategory(category) {
+  return (dispatch, getState, { getFirestore }) => {
+    getFirestore().delete({ collection: 'categories', doc: category })
+  }
+}
+
 //TODO<: Deprecate this after 2020-01-01
 export function moveTag({ src, dst }) {
   console.warn('This is going to be deprecated soon')

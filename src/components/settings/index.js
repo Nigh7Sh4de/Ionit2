@@ -8,6 +8,7 @@ import Calendars from './calendars'
 import Interval from './interval'
 import Tags from './tags'
 import Keywords from './keywords'
+import Categories from './categories'
 
 export class Settings extends Component {
   render() {
@@ -22,6 +23,7 @@ export class Settings extends Component {
         <Route exact path="/settings/interval" component={Interval} />
         <Route exact path="/settings/tags" component={Tags} />
         <Route exact path="/settings/keywords" component={Keywords} />
+        <Route exact path="/settings/categories" component={Categories} />
       </View>
     )
   }

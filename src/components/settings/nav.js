@@ -39,6 +39,14 @@ export class SettingsNav extends Component {
         >
           <Text>Keywords</Text>
         </Link>
+        <Link
+          push
+          to="/settings/categories"
+          style={{ paddingVertical: 15 }}
+          component={TouchableOpacity}
+        >
+          <Text>Categories</Text>
+        </Link>
       </View>
     )
   }
