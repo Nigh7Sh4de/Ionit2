@@ -22,15 +22,6 @@ export class Tags extends Component {
     }
   }
 
-  onChangeText(keyword, field, value) {
-    this.setState({
-      [keyword]: {
-        ...this.state[keyword],
-        [field]: value,
-      },
-    })
-  }
-
   async create(keyword) {
     await this.props.setKeyword(keyword)
   }
