@@ -16,11 +16,11 @@ export function unsetKeyword(keyword) {
   }
 }
 
-export function addCategory(category) {
+export function addCategory(categoryObject) {
   return (dispatch, getState, { getFirestore }) => {
     getFirestore().set(
-      { collection: 'categories', doc: category.category },
-      category
+      { collection: 'categories', doc: categoryObject.category },
+      categoryObject
     )
   }
 }

@@ -13,8 +13,7 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
-import Tag from './tag'
-import TagSelector from './tagSelector'
+import CategorySelector from './categorySelector'
 import {
   createGoogleCalendarEvent,
   patchGoogleCalendarEvent,
@@ -42,17 +41,17 @@ export class NewEvent extends Component {
         summary: '',
         description: '',
         location: '',
-        tags: [],
+        category: '',
       }
     } else {
       foundEvent = events[id]
-      let tags = []
+      let category = ''
       if (
         foundEvent.extendedProperties &&
         foundEvent.extendedProperties.private &&
-        foundEvent.extendedProperties.private.tags
+        foundEvent.extendedProperties.private.category
       ) {
-        tags = foundEvent.extendedProperties.private.tags.split(',')
+        category = foundEvent.extendedProperties.private.category
       }
       event = {
         start: moment(foundEvent.start.dateTime),
@@ -61,7 +60,7 @@ export class NewEvent extends Component {
         description: foundEvent.description,
         location: foundEvent.location,
         colorId: foundEvent.colorId,
-        tags,
+        category,
       }
     }
 
@@ -70,7 +69,7 @@ export class NewEvent extends Component {
         start: false,
         end: false,
         color: false,
-        tags: false,
+        category: false,
       },
       loading: false,
       foundEvent,
@@ -79,35 +78,30 @@ export class NewEvent extends Component {
 
     this.onPress = this._onPress.bind(this)
     this.delete = this._delete.bind(this)
-    this.addTag = this._addTag.bind(this)
-    this.editTag = this._editTag.bind(this)
-    this.removeTag = this._removeTag.bind(this)
-  }
-
-  onChangeColor(colorId) {
-    this.setState({
-      colorId,
-    })
-    this.hideDateTime('color')
   }
 
   onChangeText(field, value) {
-    let tags = this.state.tags
+    let category = this.state.category
     if (field === 'summary') {
-      const values = value.split(' ')
+      const values = value.split(' ').reverse()
       values.forEach(word => {
         if (this.props.keywords[word]) {
-          tags = tags.concat(this.props.keywords[word].tags)
+          category = this.props.keywords[word].category
         }
       })
-      const mergedTags = {}
-      tags.forEach(tag => (mergedTags[tag] = true))
-      tags = Object.keys(mergedTags)
     }
     this.setState({
       [field]: value,
-      tags,
+      category,
     })
+  }
+
+  onChangeCategory({ category, colorId }) {
+    this.setState({
+      category,
+      colorId,
+    })
+    this.hideDateTime('category')
   }
 
   onChangeDateTime(picker, value) {
@@ -135,29 +129,6 @@ export class NewEvent extends Component {
     })
   }
 
-  _addTag(tag) {
-    let { tags } = this.state
-    if (tags.indexOf(tag) < 0)
-      this.setState({
-        tags: [...tags, tag],
-      })
-  }
-
-  _editTag() {
-    const { tags } = this.state
-    this.setState({
-      tags: tags.slice(0, -1),
-    })
-    return tags.slice(-1)[0]
-  }
-
-  _removeTag(tag) {
-    let { tags } = this.state
-    this.setState({
-      tags: tags.filter(x => x !== tag),
-    })
-  }
-
   async _delete() {
     this.setState({
       loading: true,
@@ -181,7 +152,7 @@ export class NewEvent extends Component {
       description,
       location,
       colorId,
-      tags,
+      category,
     } = this.state
 
     const event = {
@@ -198,7 +169,7 @@ export class NewEvent extends Component {
       colorId,
       extendedProperties: {
         private: {
-          tags: tags.join(','),
+          category,
         },
       },
     }
@@ -231,13 +202,10 @@ export class NewEvent extends Component {
       end,
       summary,
       foundEvent,
-      tags,
+      category,
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
-    const tagList = tags.map(tag => (
-      <Tag tag={tag} key={tag} onPress={this.removeTag.bind(this, tag)} />
-    ))
 
     if (loading) return <Text>Loading...</Text>
 
@@ -298,17 +266,30 @@ export class NewEvent extends Component {
               />
             </View>
           </View>
-          <View style={{ padding: 15, alignItems: 'center' }}>
-            <Text style={{ fontSize: 16 }}>Tags</Text>
-            <View style={{ flexDirection: 'row' }}>
-              {tagList}
-              <TagSelector
-                placeholder="+"
-                onSubmit={this.addTag.bind(this)}
-                onBack={this.editTag.bind(this)}
-              />
+          <TouchableOpacity
+            style={{ padding: 15, alignItems: 'center' }}
+            onPress={this.showDateTime.bind(this, 'category')}
+          >
+            <Text style={{ fontSize: 16 }}>Category</Text>
+            <View
+              style={{
+                paddingVertical: 2,
+                paddingHorizontal: 8,
+                borderRadius: 8,
+                margin: 2,
+                backgroundColor: 'grey',
+                justifyContent: 'center',
+                textAlign: 'center',
+              }}
+            >
+              <Text>{category || '+'}</Text>
             </View>
-          </View>
+            <CategorySelector
+              visible={visible.category}
+              onChangeCategory={this.onChangeCategory.bind(this)}
+              selected={category}
+            />
+          </TouchableOpacity>
         </ScrollView>
         <TouchableOpacity
           style={{
@@ -354,7 +335,4 @@ function mapDispatchToProps(dispatch) {
   )
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NewEvent)
+export default connect(mapStateToProps, mapDispatchToProps)(NewEvent)

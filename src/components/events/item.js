@@ -23,18 +23,12 @@ export class Item extends PureComponent {
     })
   }
 
-  renderItem({ start, end, summary, color, blank }) {
+  renderItem({ start, end, summary, color }) {
     if (end.diff(start, 'minutes') <= 0) {
       return null
     }
 
-    const paddingVertical = Math.min(end.diff(start, 'minutes') * 0.1, 36)
-    let backgroundColor = 'lightgray'
-    if (blank) {
-      backgroundColor = 'darkgrey'
-    } else if (color.background) {
-      backgroundColor = color.background
-    }
+    const paddingVertical = Math.min(end.diff(start, 'minutes') * 0.08, 36)
 
     return (
       <TouchableOpacity
@@ -47,7 +41,7 @@ export class Item extends PureComponent {
           flexDirection: 'row',
           marginBottom: 5,
           paddingVertical: 10,
-          backgroundColor,
+          backgroundColor: color.background,
         }}
       >
         <View style={{ width: 50, alignItems: 'flex-end', paddingVertical }}>
@@ -61,13 +55,13 @@ export class Item extends PureComponent {
             paddingLeft: 10,
             paddingVertical,
             borderLeftWidth: 1,
-            borderLeftColor: color.foreground || 'black',
+            borderLeftColor: color.foreground,
             justifyContent: 'center',
           }}
         >
           <Text
             style={{
-              color: color.foreground || 'black',
+              color: color.foreground,
             }}
           >
             {summary}
@@ -78,8 +72,26 @@ export class Item extends PureComponent {
   }
 
   render() {
-    const { date, item, colors, interval } = this.props
-    const { summary, id, start, end, colorId, blank } = item
+    const { date, item, colors, interval, categoryData } = this.props
+    const { summary, id, start, end, colorId, blank, extendedProperties } = item
+
+    let color = {
+      background: '#dddddd',
+      foreground: '#000000',
+    }
+    if (blank) {
+      color.background = '#ffffff'
+    } else if (
+      extendedProperties &&
+      extendedProperties.private &&
+      extendedProperties.private.category &&
+      categoryData[extendedProperties.private.category] &&
+      categoryData[extendedProperties.private.category].color
+    ) {
+      color = categoryData[extendedProperties.private.category].color
+    } else if (colorId && colors[colorId]) {
+      color = colors[colorId]
+    }
 
     const { selected, override } = this.state
     if (selected) {
@@ -100,10 +112,13 @@ export class Item extends PureComponent {
         .add(1, 'day')
     )
 
-    const color = colors[colorId] || {}
-
     if (!blank) {
-      return this.renderItem({ start: _start, end: _end, summary, color })
+      return this.renderItem({
+        start: _start,
+        end: _end,
+        summary,
+        color,
+      })
     } else {
       const result = []
       while (_start < _end) {
@@ -125,6 +140,7 @@ export class Item extends PureComponent {
 
 function mapStateToProps(state) {
   return {
+    categoryData: state.firestore.data.categories || {},
     colors: state.colors.event,
     interval: state.settings.interval,
   }
@@ -134,7 +150,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch)
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Item)
+export default connect(mapStateToProps, mapDispatchToProps)(Item)

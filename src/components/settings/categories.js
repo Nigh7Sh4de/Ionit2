@@ -32,8 +32,113 @@ export class Tags extends Component {
     await this.props.addCategory({ category: this.state.new })
   }
 
-  async delete(category) {
-    await this.props.deleteCategory(category)
+  async activate(category) {
+    await this.props.addCategory({
+      ...category,
+      archived: false,
+    })
+  }
+
+  async archive(category) {
+    await this.props.addCategory({
+      ...category,
+      archived: true,
+    })
+  }
+
+  renderNewCategory() {
+    return (
+      <View
+        style={{
+          width: '100%',
+          alignItems: 'center',
+        }}
+      >
+        <TextInput
+          placeholder="New category"
+          onChangeText={this.onChangeText.bind(this)}
+        />
+        <TouchableOpacity
+          style={{
+            padding: 15,
+            backgroundColor: '#00b000',
+            width: '100%',
+            alignItems: 'center',
+          }}
+          onPress={this.create.bind(this)}
+        >
+          <Text style={{ color: '#ffffff', fontSize: 16 }}>Create</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  renderActiveCategories() {
+    return this.props.categories
+      .filter(categoryObject => !categoryObject.archived)
+      .map(categoryObject => (
+        <View
+          key={categoryObject.category}
+          style={{
+            width: '100%',
+            flexDirection: 'row',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: categoryObject.color.background,
+              paddingVertical: 15,
+              flex: 1,
+            }}
+          >
+            <Text style={{ color: categoryObject.color.foreground }}>
+              {categoryObject.category}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={this.archive.bind(this, categoryObject)}
+            style={{
+              fontSize: 24,
+              padding: 15,
+            }}
+          >
+            <Text>💤</Text>
+          </TouchableOpacity>
+        </View>
+      ))
+  }
+
+  renderArchivedCategories() {
+    return this.props.categories
+      .filter(categoryObject => categoryObject.archived)
+      .map(categoryObject => (
+        <View
+          key={categoryObject.category}
+          style={{
+            width: '100%',
+            flexDirection: 'row',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: '#dddddd',
+              paddingVertical: 15,
+              flex: 1,
+            }}
+          >
+            <Text style={{ color: '#000000' }}>{categoryObject.category}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={this.activate.bind(this, categoryObject)}
+            style={{
+              fontSize: 24,
+              padding: 15,
+            }}
+          >
+            <Text>☀️</Text>
+          </TouchableOpacity>
+        </View>
+      ))
   }
 
   render() {
@@ -53,16 +158,7 @@ export class Tags extends Component {
         </Text>
       </View>
     )
-    const categories = this.props.categories.map(categoryObject => (
-      <View key={categoryObject.category}>
-        <Text>{categoryObject.category}</Text>
-        <TouchableOpacity
-          onPress={this.delete.bind(this, categoryObject.category)}
-        >
-          <Text>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    ))
+
     return (
       <ScrollView>
         <Text>
@@ -70,19 +166,17 @@ export class Tags extends Component {
           your calendar.
         </Text>
         {this.props.categories.length > 10 && warning}
-        <View>
-          <TextInput
-            placeholder="New cateogry"
-            onChangeText={this.onChangeText.bind(this)}
-          />
-          <TouchableOpacity
-            disabled={!this.state.new}
-            onPress={this.create.bind(this)}
-          >
-            <Text>+ Add</Text>
-          </TouchableOpacity>
-        </View>
-        {categories}
+        <ScrollView
+          contentContainerStyle={{
+            backgroundColor: '#ffffff',
+            flex: 1,
+            width: '100%',
+          }}
+        >
+          {this.renderNewCategory()}
+          {this.renderActiveCategories()}
+          {this.renderArchivedCategories()}
+        </ScrollView>
       </ScrollView>
     )
   }
