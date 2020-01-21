@@ -13,7 +13,7 @@ import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
-import CategorySelector from './categorySelector'
+import CategorySelector from '../lib/categorySelector'
 import {
   createGoogleCalendarEvent,
   patchGoogleCalendarEvent,
