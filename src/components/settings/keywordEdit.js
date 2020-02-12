@@ -1,24 +1,20 @@
 import React, { Component } from 'react'
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-} from 'react-native'
+import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { asTagTreeConsumer } from '../lib/TagTree'
-import TagSelector from '../events/tagSelector'
+import CategorySelector from '../lib/categorySelector'
 
 export class KeywordEdit extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
+      visible: {
+        category: false,
+      },
       keyword: this.props.keyword || '',
-      tags: this.props.tags || [],
+      category: this.props.category || '',
     }
   }
 
@@ -28,29 +24,34 @@ export class KeywordEdit extends Component {
     })
   }
 
-  pushTag(tag) {
-    const { tags } = this.state
-    if (tags.indexOf(tag) < 0) {
-      this.setState({
-        tags: [...tags, tag],
-      })
-    }
+  showModal(type) {
+    this.setState({
+      visible: {
+        [type]: true,
+      },
+    })
   }
 
-  popTag() {
-    const { tags } = this.state
-    const tag = tags.slice(-1)[0]
+  hideModal(type) {
     this.setState({
-      tags: tags.slice(0, -1),
+      visible: {
+        [type]: false,
+      },
     })
-    return tag
+  }
+
+  onChangeCategory({ category }) {
+    this.setState({
+      category,
+      visible: { category: false },
+    })
   }
 
   async create() {
-    const { keyword, tags } = this.state
+    const { keyword, category } = this.state
     await this.props.setKeyword({
       keyword,
-      tags,
+      category,
     })
   }
 
@@ -60,7 +61,6 @@ export class KeywordEdit extends Component {
   }
 
   render() {
-    const tags = this.state.tags.map(tag => <Text key={tag}>{tag}</Text>)
     return (
       <View>
         <View style={{ flexDirection: 'row' }}>
@@ -72,11 +72,30 @@ export class KeywordEdit extends Component {
               style={{ fontSize: 20 }}
             />
           </View>
-          {tags}
-          <TagSelector
-            onSubmit={this.pushTag.bind(this)}
-            onBack={this.popTag.bind(this)}
-          />
+          <TouchableOpacity
+            style={{ padding: 15, alignItems: 'center' }}
+            onPress={this.showModal.bind(this, 'category')}
+          >
+            <Text style={{ fontSize: 16 }}>Category</Text>
+            <View
+              style={{
+                paddingVertical: 2,
+                paddingHorizontal: 8,
+                borderRadius: 8,
+                margin: 2,
+                backgroundColor: 'grey',
+                justifyContent: 'center',
+                textAlign: 'center',
+              }}
+            >
+              <Text>{this.state.category || '+'}</Text>
+            </View>
+            <CategorySelector
+              visible={this.state.visible.category}
+              onChangeCategory={this.onChangeCategory.bind(this)}
+              selected={this.state.category}
+            />
+          </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={this.create.bind(this)}>
           <Text>+ Update</Text>
@@ -98,7 +117,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch)
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(asTagTreeConsumer(KeywordEdit))
+export default connect(mapStateToProps, mapDispatchToProps)

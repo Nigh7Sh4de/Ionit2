@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Picker,
 } from 'react-native'
-import uuidv4 from 'uuid/v4'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import moment from 'moment'
@@ -17,6 +17,7 @@ import CategorySelector from '../lib/categorySelector'
 import {
   createGoogleCalendarEvent,
   patchGoogleCalendarEvent,
+  patchRecurringGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
 } from '../../redux/events'
 
@@ -60,6 +61,7 @@ export class NewEvent extends Component {
         description: foundEvent.description,
         location: foundEvent.location,
         colorId: foundEvent.colorId,
+        recurringEventId: foundEvent.recurringEventId,
         category,
       }
     }
@@ -73,6 +75,8 @@ export class NewEvent extends Component {
       },
       loading: false,
       foundEvent,
+      verb: foundEvent ? 'Update' : 'Create',
+      updateMode: foundEvent ? 'single' : 'create',
       ...event,
     }
 
@@ -93,6 +97,12 @@ export class NewEvent extends Component {
     this.setState({
       [field]: value,
       category,
+    })
+  }
+
+  onChangeUpdateMode(updateMode) {
+    this.setState({
+      updateMode,
     })
   }
 
@@ -153,10 +163,10 @@ export class NewEvent extends Component {
       location,
       colorId,
       category,
+      updateMode,
     } = this.state
 
     const event = {
-      id: uuidv4().replace(/-/g, ''),
       start: {
         dateTime: start.toISOString(),
       },
@@ -167,6 +177,7 @@ export class NewEvent extends Component {
       description,
       location,
       colorId,
+      recurringEventId: foundEvent.recurringEventId,
       extendedProperties: {
         private: {
           category,
@@ -178,14 +189,31 @@ export class NewEvent extends Component {
       loading: true,
     })
 
-    if (foundEvent) {
-      await this.props.patchGoogleCalendarEvent({
-        ...event,
-        id: foundEvent.id,
-        calendar: foundEvent.calendar,
-      })
-    } else {
-      await this.props.createGoogleCalendarEvent(event)
+    switch (updateMode) {
+      case 'create':
+        await this.props.createGoogleCalendarEvent(event)
+        break
+      case 'single':
+        await this.props.patchGoogleCalendarEvent({
+          ...event,
+          id: foundEvent.id,
+          calendar: foundEvent.calendar,
+        })
+        break
+      case 'future':
+        await this.props.patchRecurringGoogleCalendarEvent({
+          ...event,
+          id: foundEvent.id,
+          calendar: foundEvent.calendar,
+        })
+        break
+      case 'all':
+        await this.props.patchGoogleCalendarEvent({
+          ...event,
+          id: foundEvent.recurringEventId,
+          calendar: foundEvent.calendar,
+        })
+        break
     }
 
     this.setState({
@@ -203,13 +231,13 @@ export class NewEvent extends Component {
       summary,
       foundEvent,
       category,
+      verb,
+      updateMode,
     } = this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
 
     if (loading) return <Text>Loading...</Text>
-
-    const verb = foundEvent ? 'Update' : 'Create'
 
     return (
       <View style={{ flex: 1 }}>
@@ -291,6 +319,21 @@ export class NewEvent extends Component {
             />
           </TouchableOpacity>
         </ScrollView>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 0.5 }}>
+            <Text>Update series: </Text>
+          </View>
+          <View style={{ flex: 0.5 }}>
+            <Picker
+              selectedValue={updateMode}
+              onValueChange={this.onChangeUpdateMode.bind(this)}
+            >
+              <Picker.Item value="single" label="Just this event" />
+              <Picker.Item value="future" label="This and all future events" />
+              <Picker.Item value="all" label="All events in the series" />
+            </Picker>
+          </View>
+        </View>
         <TouchableOpacity
           style={{
             paddingVertical: 15,
@@ -330,6 +373,7 @@ function mapDispatchToProps(dispatch) {
       createGoogleCalendarEvent,
       patchGoogleCalendarEvent,
       deleteGoogleCalendarEvent,
+      patchRecurringGoogleCalendarEvent,
     },
     dispatch
   )
