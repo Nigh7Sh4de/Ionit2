@@ -32,9 +32,7 @@ export function processQueue() {
     if (completed.length) {
       showMessage({
         message: `Connected to Google`,
-        description: `${completed.length}/${
-          data.length
-        } cached actions completed`,
+        description: `${completed.length}/${data.length} cached actions completed`,
         type: completed.length < data.length ? 'warning' : 'success',
       })
       dispatch(completeCalls(completed))
@@ -78,6 +76,33 @@ function addCallToQueue(state, { call }) {
           ...state,
           data: state.data.map(i =>
             i.payload.event.id === payload.event.id
+              ? {
+                  ...i,
+                  payload: {
+                    ...i.payload,
+                    event: payload.event,
+                  },
+                }
+              : i
+          ),
+        }
+      } else {
+        return {
+          ...state,
+          data: [...state.data, call],
+        }
+      }
+    case 'patchRecurringEvent':
+      if (
+        state.data.find(
+          i =>
+            i.payload.event.recurringEventId === payload.event.recurringEventId
+        )
+      ) {
+        return {
+          ...state,
+          data: state.data.map(i =>
+            i.payload.event.recurringEventId === payload.event.recurringEventId
               ? {
                   ...i,
                   payload: {

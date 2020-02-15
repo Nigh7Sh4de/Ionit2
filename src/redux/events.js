@@ -1,4 +1,5 @@
 import moment from 'moment'
+import uuidv4 from 'uuid/v4'
 import { getEvents } from '../lib/google'
 import { addCall, processQueue } from './calls'
 import { showMessage } from 'react-native-flash-message'
@@ -6,6 +7,7 @@ import { showMessage } from 'react-native-flash-message'
 export const SAVE_EVENTS = 'SAVE_EVENTS'
 export const ADD_EVENT = 'ADD_EVENT'
 export const UPDATE_EVENT = 'UPDATE_EVENT'
+export const UPDATE_RECURRING_EVENT = 'UPDATE_RECURRING_EVENT'
 export const DELETE_EVENT = 'DELETE_EVENT'
 export const FETCH_DELAY = 60
 
@@ -39,6 +41,15 @@ export function updateEvent({ event, calendar }) {
     type: UPDATE_EVENT,
     event,
     calendar,
+  }
+}
+
+export function updateRecurringEvent({ event, calendar, newId }) {
+  return {
+    type: UPDATE_RECURRING_EVENT,
+    event,
+    calendar,
+    newId,
   }
 }
 
@@ -105,7 +116,10 @@ export function createGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { outgoing } = getState().settings.calendars
     const payload = {
-      event,
+      event: {
+        ...event,
+        id: uuidv4().replace(/-/g, ''),
+      },
       calendar: outgoing,
     }
     dispatch(addEvent(payload))
@@ -128,6 +142,25 @@ export function patchGoogleCalendarEvent(event) {
     }
     dispatch(updateEvent(payload))
     dispatch(addCall({ type: 'patchEvent', payload }))
+    dispatch(
+      getGoogleCalendarEvents({
+        start: event.start.dateTime,
+        force: true,
+      })
+    )
+  }
+}
+
+export function patchRecurringGoogleCalendarEvent(event) {
+  return async (dispatch, getState) => {
+    const { outgoing } = getState().settings.calendars
+    const payload = {
+      newId: uuidv4().replace(/-/g, ''),
+      event,
+      calendar: outgoing,
+    }
+    dispatch(updateRecurringEvent(payload))
+    dispatch(addCall({ type: 'patchRecurringEvent', payload }))
     dispatch(
       getGoogleCalendarEvents({
         start: event.start.dateTime,
@@ -168,6 +201,8 @@ export default function reducer(state = initialState, action) {
       return addOfflineEvent(state, action)
     case UPDATE_EVENT:
       return updateOfflineEvent(state, action)
+    case UPDATE_RECURRING_EVENT:
+      return updateOfflineRecurringEvent(state, action)
     case DELETE_EVENT:
       return deleteOfflineEvent(state, action)
     default:
@@ -224,6 +259,43 @@ function updateOfflineEvent(state, { event }) {
       ...state.data,
       [event.id]: event,
     },
+  }
+}
+
+function updateOfflineRecurringEvent(state, { event, newId }) {
+  const data = {
+    ...state.data,
+  }
+  const oldEvent = state.data[event.id]
+  const startDiff = moment(event.start.dateTime).diff(oldEvent.start.dateTime)
+  const endDiff = moment(event.end.dateTime).diff(oldEvent.end.dateTime)
+
+  for (let id in data) {
+    if (
+      data[id].recurringEventId === event.recurringEventId &&
+      data[id].start.dateTime >= event.start.dateTime
+    ) {
+      data[id] = {
+        ...data[id],
+        ...event,
+        start: {
+          dateTime: moment(data[id].start.dateTime)
+            .add(startDiff)
+            .toISOString(),
+        },
+        end: {
+          dateTime: moment(data[id].end.dateTime)
+            .add(endDiff)
+            .toISOString(),
+        },
+        id: newId + '_' + moment(data[id].start.dateTime).toISOString(),
+      }
+    }
+  }
+
+  return {
+    ...state,
+    data,
   }
 }
 

@@ -1,5 +1,6 @@
 import { GoogleSignin } from 'react-native-google-signin'
 import moment from 'moment'
+import { RRule } from 'rrule'
 
 export async function configure() {
   await GoogleSignin.configure({
@@ -51,6 +52,21 @@ export async function getColors() {
   )
   const colors = await response.json()
   return colors
+}
+
+export async function getEvent({ calendar, id }) {
+  const { accessToken } = await GoogleSignin.getTokens()
+  const response = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events/${id}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  )
+  return await response.json()
 }
 
 export async function getEvents({ calendar, timeMin, timeMax }) {
@@ -129,4 +145,33 @@ export async function patchEvent({ calendar, event }) {
     }
   )
   return await response.json()
+}
+
+export async function patchRecurringEvent({ calendar, event, newId }) {
+  try {
+    const recEvent = await getEvent({ calendar, id: event.recurringEventId })
+
+    const options = RRule.parseString(recEvent.recurrence.join('\n'))
+    delete options.count
+    options.until = moment(event.start.dateTime)
+      .subtract(1)
+      .toDate()
+    const oldEventPatch = {
+      id: event.recurringEventId,
+      recurrence: RRule.optionsToString(options).split('\n'),
+    }
+    await patchEvent({ calendar, event: oldEventPatch })
+
+    const newEvent = {
+      ...recEvent,
+      ...event,
+      id: newId,
+    }
+    delete newEvent.iCalUID
+    delete newEvent.recurringEventId
+    delete newEvent.originalStartTime
+    await createEvent({ calendar, event: newEvent })
+  } catch (e) {
+    console.error(e)
+  }
 }

@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import queryString from 'query-string'
 
@@ -55,13 +55,13 @@ export class NewEvent extends Component {
         category = foundEvent.extendedProperties.private.category
       }
       event = {
+        ...foundEvent,
         start: moment(foundEvent.start.dateTime),
         end: moment(foundEvent.end.dateTime),
         summary: foundEvent.summary,
         description: foundEvent.description,
         location: foundEvent.location,
         colorId: foundEvent.colorId,
-        recurringEventId: foundEvent.recurringEventId,
         category,
       }
     }
@@ -167,17 +167,19 @@ export class NewEvent extends Component {
     } = this.state
 
     const event = {
+      ...foundEvent,
       start: {
-        dateTime: start.toISOString(),
+        dateTime: start.format(),
+        timeZone: moment.tz.guess(),
       },
       end: {
-        dateTime: end.toISOString(),
+        dateTime: end.format(),
+        timeZone: moment.tz.guess(),
       },
       summary,
       description,
       location,
       colorId,
-      recurringEventId: foundEvent.recurringEventId,
       extendedProperties: {
         private: {
           category,
@@ -194,24 +196,15 @@ export class NewEvent extends Component {
         await this.props.createGoogleCalendarEvent(event)
         break
       case 'single':
-        await this.props.patchGoogleCalendarEvent({
-          ...event,
-          id: foundEvent.id,
-          calendar: foundEvent.calendar,
-        })
+        await this.props.patchGoogleCalendarEvent(event)
         break
       case 'future':
-        await this.props.patchRecurringGoogleCalendarEvent({
-          ...event,
-          id: foundEvent.id,
-          calendar: foundEvent.calendar,
-        })
+        await this.props.patchRecurringGoogleCalendarEvent(event)
         break
       case 'all':
         await this.props.patchGoogleCalendarEvent({
           ...event,
           id: foundEvent.recurringEventId,
-          calendar: foundEvent.calendar,
         })
         break
     }
@@ -319,21 +312,26 @@ export class NewEvent extends Component {
             />
           </TouchableOpacity>
         </ScrollView>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 0.5 }}>
-            <Text>Update series: </Text>
+        {foundEvent && foundEvent.recurringEventId && (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 0.5 }}>
+              <Text>Update series: </Text>
+            </View>
+            <View style={{ flex: 0.5 }}>
+              <Picker
+                selectedValue={updateMode}
+                onValueChange={this.onChangeUpdateMode.bind(this)}
+              >
+                <Picker.Item value="single" label="Just this event" />
+                <Picker.Item
+                  value="future"
+                  label="This and all future events"
+                />
+                <Picker.Item value="all" label="All events in the series" />
+              </Picker>
+            </View>
           </View>
-          <View style={{ flex: 0.5 }}>
-            <Picker
-              selectedValue={updateMode}
-              onValueChange={this.onChangeUpdateMode.bind(this)}
-            >
-              <Picker.Item value="single" label="Just this event" />
-              <Picker.Item value="future" label="This and all future events" />
-              <Picker.Item value="all" label="All events in the series" />
-            </Picker>
-          </View>
-        </View>
+        )}
         <TouchableOpacity
           style={{
             paddingVertical: 15,
