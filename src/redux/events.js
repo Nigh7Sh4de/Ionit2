@@ -267,6 +267,16 @@ function updateOfflineRecurringEvent(state, { event, newId }) {
     ...state.data,
   }
   const oldEvent = state.data[event.id]
+  const oldStart = {
+    hours: moment(oldEvent.start.dateTime).toObject().hours,
+    minutes: moment(oldEvent.start.dateTime).toObject().minutes,
+    seconds: moment(oldEvent.start.dateTime).toObject().seconds,
+  }
+  const oldEnd = {
+    hours: moment(oldEvent.end.dateTime).toObject().hours,
+    minutes: moment(oldEvent.end.dateTime).toObject().minutes,
+    seconds: moment(oldEvent.end.dateTime).toObject().seconds,
+  }
   const startDiff = moment(event.start.dateTime).diff(oldEvent.start.dateTime)
   const endDiff = moment(event.end.dateTime).diff(oldEvent.end.dateTime)
 
