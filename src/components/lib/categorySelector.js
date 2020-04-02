@@ -10,7 +10,7 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { addCategory } from '../../redux/tags'
+import { addCategory } from '../../redux/firestore'
 
 export class CategorySelector extends Component {
   constructor(props) {

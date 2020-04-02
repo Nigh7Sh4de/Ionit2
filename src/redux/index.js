@@ -5,7 +5,6 @@ import settings from './settings'
 import colors from './colors'
 import users from './users'
 import events from './events'
-import tags from './tags'
 import calls from './calls'
 
 export default combineReducers({
@@ -15,6 +14,5 @@ export default combineReducers({
   colors,
   users,
   events,
-  tags,
   calls,
 })

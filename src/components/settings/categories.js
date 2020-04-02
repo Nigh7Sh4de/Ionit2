@@ -9,9 +9,7 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { addCategory, deleteCategory } from '../../redux/tags'
-import { asTagTreeConsumer } from '../lib/TagTree'
-import KeywordEdit from './keywordEdit'
+import { addCategory, deleteCategory } from '../../redux/firestore'
 
 export class Tags extends Component {
   constructor(props) {
@@ -192,7 +190,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ addCategory, deleteCategory }, dispatch)
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(asTagTreeConsumer(Tags))
+export default connect(mapStateToProps, mapDispatchToProps)(Tags)

@@ -9,11 +9,10 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { setKeyword, unsetKeyword } from '../../redux/tags'
-import { asTagTreeConsumer } from '../lib/TagTree'
+import { setKeyword, unsetKeyword } from '../../redux/firestore'
 import KeywordEdit from './keywordEdit'
 
-export class Tags extends Component {
+export class Keywords extends Component {
   constructor(props) {
     super(props)
 
@@ -62,7 +61,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setKeyword, unsetKeyword }, dispatch)
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(asTagTreeConsumer(Tags))
+export default connect(mapStateToProps, mapDispatchToProps)(Keywords)

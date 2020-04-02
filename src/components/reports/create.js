@@ -11,8 +11,6 @@ import { Redirect } from 'react-router-native'
 import moment from 'moment'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 
-import TagTreeSelector from '../events/tagTreeSelector'
-
 export class CreateReport extends Component {
   constructor(props) {
     super(props)
@@ -147,13 +145,6 @@ export class CreateReport extends Component {
           >
             <Text>Search through existing tags</Text>
           </TouchableOpacity>
-          <TagTreeSelector
-            visible={visible.tags}
-            selected={groups[group]}
-            onSelectTag={this.addTag.bind(this, group)}
-            onUnselectTag={this.removeTag.bind(this, group)}
-            onClose={this.hideDateTime.bind(this, 'tags')}
-          />
           {tagList}
         </View>
       )
@@ -218,9 +209,7 @@ export class CreateReport extends Component {
 }
 
 function mapStateToProps(state) {
-  return {
-    tags: state.tags.data,
-  }
+  return {}
 }
 
 export default connect(mapStateToProps)(CreateReport)
