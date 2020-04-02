@@ -66,71 +66,57 @@ function addCallToQueue(state, { call }) {
   const { type, payload } = call
   switch (type) {
     case 'createEvent':
+    case 'deleteEvent':
       return {
         ...state,
-        data: [...state.data, call],
+        data: [
+          ...state.data.filter(
+            call =>
+              call.payload.event.id !== payload.event.id &&
+              call.payload.event.recurringEventId !== payload.event.id
+          ),
+          call,
+        ],
       }
     case 'patchEvent':
-      if (state.data.find(i => i.payload.event.id === payload.event.id)) {
-        return {
-          ...state,
-          data: state.data.map(i =>
-            i.payload.event.id === payload.event.id
-              ? {
-                  ...i,
-                  payload: {
-                    ...i.payload,
-                    event: payload.event,
-                  },
-                }
-              : i
-          ),
-        }
-      } else {
-        return {
-          ...state,
-          data: [...state.data, call],
-        }
-      }
-    case 'patchRecurringEvent':
+    case 'updateEvent':
+      const data = state.data.filter(
+        call =>
+          !(
+            (call.type === 'deleteEvent') &
+            (call.payload.event.id === payload.event.id ||
+              call.payload.event.id === payload.event.recurringEventId)
+          )
+      )
       if (
-        state.data.find(
-          i =>
-            i.payload.event.recurringEventId === payload.event.recurringEventId
+        data.find(
+          call =>
+            call.payload.event.id !== payload.event.id &&
+            call.payload.event.recurringEventId !== payload.event.id
         )
       ) {
         return {
           ...state,
-          data: state.data.map(i =>
-            i.payload.event.recurringEventId === payload.event.recurringEventId
+          data: data.map(call =>
+            call.payload.event.id !== payload.event.id &&
+            call.payload.event.recurringEventId !== payload.event.id
               ? {
-                  ...i,
+                  ...call,
                   payload: {
-                    ...i.payload,
-                    event: payload.event,
+                    ...call.payload,
+                    event: {
+                      ...call.payload.event,
+                      ...payload.event,
+                    },
                   },
                 }
-              : i
+              : call
           ),
         }
       } else {
         return {
           ...state,
-          data: [...state.data, call],
-        }
-      }
-    case 'deleteEvent':
-      if (payload.event.etag) {
-        return {
-          ...state,
-          data: [...state.data, call],
-        }
-      } else {
-        return {
-          ...state,
-          data: [
-            ...state.data.filter(i => i.payload.event.id === payload.event.id),
-          ],
+          data: [...data, call],
         }
       }
   }
