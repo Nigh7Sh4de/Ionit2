@@ -27,7 +27,7 @@ export function processQueue() {
       }
     }
 
-    errors.forEach(error => Alert.alert(error.toString()))
+    errors.forEach((error) => Alert.alert(error.toString()))
 
     if (completed.length) {
       showMessage({
@@ -71,7 +71,7 @@ function addCallToQueue(state, { call }) {
         ...state,
         data: [
           ...state.data.filter(
-            call =>
+            (call) =>
               call.payload.event.id !== payload.event.id &&
               call.payload.event.recurringEventId !== payload.event.id
           ),
@@ -81,25 +81,18 @@ function addCallToQueue(state, { call }) {
     case 'patchEvent':
     case 'updateEvent':
       const data = state.data.filter(
-        call =>
+        (call) =>
           !(
             (call.type === 'deleteEvent') &
             (call.payload.event.id === payload.event.id ||
               call.payload.event.id === payload.event.recurringEventId)
-          )
+          ) || !(call.payload.event.recurringEventId === payload.event.id)
       )
-      if (
-        data.find(
-          call =>
-            call.payload.event.id !== payload.event.id &&
-            call.payload.event.recurringEventId !== payload.event.id
-        )
-      ) {
+      if (data.find((call) => call.payload.event.id === payload.event.id)) {
         return {
           ...state,
-          data: data.map(call =>
-            call.payload.event.id !== payload.event.id &&
-            call.payload.event.recurringEventId !== payload.event.id
+          data: data.map((call) =>
+            call.payload.event.id === payload.event.id
               ? {
                   ...call,
                   payload: {
@@ -125,6 +118,6 @@ function addCallToQueue(state, { call }) {
 function removeCallsFromQueue(state, { calls }) {
   return {
     ...state,
-    data: state.data.filter(call => calls.indexOf(call) < 0),
+    data: state.data.filter((call) => calls.indexOf(call) < 0),
   }
 }
