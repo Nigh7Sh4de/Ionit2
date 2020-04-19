@@ -11,13 +11,11 @@ import AgendaItem from './item'
 export class ListEvents extends Component {
   filterEvents(events, date) {
     let start = moment(date).startOf('day')
-    let end = moment(date)
-      .startOf('day')
-      .add(1, 'day')
+    let end = moment(date).startOf('day').add(1, 'day')
 
     const result = events
       .filter(
-        event =>
+        (event) =>
           moment(event.start.dateTime).isSameOrBefore(end) &&
           moment(event.end.dateTime).isSameOrAfter(start)
       )
@@ -59,21 +57,28 @@ export class ListEvents extends Component {
       })
     }
 
+    console.log({ filterEvents: result })
     return result
   }
 
   render() {
     const { events, context } = this.props
     const { date } = context
-    const renderedEvents = this.filterEvents(Object.values(events), date).map(
-      event => (
-        <AgendaItem
-          key={event.id || event.start.dateTime}
-          date={date}
-          item={event}
-        />
-      )
-    )
+    let eventList = []
+    for (let event of Object.values(events)) {
+      if (event.singleEvents) {
+        eventList = [...eventList, ...Object.values(event.singleEvents)]
+      } else if (event.id) {
+        eventList = [...eventList, event]
+      }
+    }
+    const renderedEvents = this.filterEvents(eventList, date).map((event) => (
+      <AgendaItem
+        key={event.id || event.start.dateTime}
+        date={date}
+        item={event}
+      />
+    ))
 
     return (
       <View style={{ flex: 1 }}>

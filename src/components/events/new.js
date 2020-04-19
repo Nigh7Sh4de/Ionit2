@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import {
+  Alert,
   View,
   Text,
   TouchableOpacity,
@@ -34,18 +35,34 @@ export class NewEvent extends Component {
     if (id === 'new') {
       event = {
         start: start ? moment(start) : moment().startOf('hour'),
-        end: end
-          ? moment(end)
-          : moment()
-              .add(1, 'hour')
-              .startOf('hour'),
+        end: end ? moment(end) : moment().add(1, 'hour').startOf('hour'),
         summary: '',
         description: '',
         location: '',
         category: '',
       }
     } else {
-      foundEvent = events[id]
+      if (id.split('_').length > 1) {
+        const recurringEventId = id.split('_')[0]
+        const recurringEvent = events[recurringEventId]
+        if (
+          recurringEvent &&
+          recurringEvent.singleEvents &&
+          recurringEvent.singleEvents[id]
+        ) {
+          foundEvent = recurringEvent.singleEvents[id]
+        }
+      } else {
+        foundEvent = events[id]
+      }
+      if (!foundEvent) {
+        Alert.alert('Event not found', id)
+        this.state = {
+          loading: true,
+        }
+        return this.props.history.goBack()
+      }
+
       let category = ''
       if (
         foundEvent.extendedProperties &&
@@ -88,7 +105,7 @@ export class NewEvent extends Component {
     let category = this.state.category
     if (field === 'summary') {
       const values = value.split(' ').reverse()
-      values.forEach(word => {
+      values.forEach((word) => {
         if (this.props.keywords[word]) {
           category = this.props.keywords[word].category
         }
@@ -227,11 +244,11 @@ export class NewEvent extends Component {
       verb,
       updateMode,
     } = this.state
-    const _start = start.format('YYYY-MM-DD H:mm')
-    const _end = end.format('YYYY-MM-DD H:mm')
 
     if (loading) return <Text>Loading...</Text>
 
+    const _start = start.format('YYYY-MM-DD H:mm')
+    const _end = end.format('YYYY-MM-DD H:mm')
     return (
       <View style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1, paddingTop: 10 }}>

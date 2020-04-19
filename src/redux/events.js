@@ -1,55 +1,54 @@
-import moment from 'moment'
+import moment from 'moment-timezone'
 import uuidv4 from 'uuid/v4'
-import { getEvents } from '../lib/google'
+import * as Google from '../lib/google'
 import { addCall, processQueue } from './calls'
 import { showMessage } from 'react-native-flash-message'
+import { rrulestr } from 'rrule'
 
 export const SAVE_EVENTS = 'SAVE_EVENTS'
-export const ADD_EVENT = 'ADD_EVENT'
-export const UPDATE_EVENT = 'UPDATE_EVENT'
+export const SET_EVENT = 'SET_EVENT'
 export const UPDATE_RECURRING_EVENT = 'UPDATE_RECURRING_EVENT'
+export const DELETE_RECURRING_EVENT = 'DELETE_RECURRING_EVENT'
 export const DELETE_EVENT = 'DELETE_EVENT'
 export const FETCH_DELAY = 60
 
-export function saveEvents(events, timeMin, timeMax) {
-  const from = moment(timeMin).format('YYYY-MM-DD')
-  const to = moment(timeMax).format('YYYY-MM-DD')
+export function saveEvents(events, calendar, syncToken) {
   showMessage({
     message: 'Connected to Google',
-    description: `Events retreived for ${from} - ${to}`,
+    description: `${events.length} events updated in ${calendar} calendar`,
     type: 'success',
   })
 
   return {
     type: SAVE_EVENTS,
     events,
-    timeMin,
-    timeMax,
+    calendar,
+    syncToken,
   }
 }
 
 export function addEvent({ event, calendar }) {
   return {
-    type: ADD_EVENT,
+    type: SET_EVENT,
     event,
     calendar,
   }
 }
 
-export function updateEvent({ event, calendar }) {
-  return {
-    type: UPDATE_EVENT,
-    event,
-    calendar,
-  }
-}
-
-export function updateRecurringEvent({ event, calendar, newId }) {
+export function updateRecurringFutureEvent({ event, calendar, newId }) {
   return {
     type: UPDATE_RECURRING_EVENT,
     event,
     calendar,
     newId,
+  }
+}
+
+export function deleteRecurringFutureEvent({ event, calendar }) {
+  return {
+    type: DELETE_RECURRING_EVENT,
+    event,
+    calendar,
   }
 }
 
@@ -61,7 +60,7 @@ export function deleteEvent({ event, calendar }) {
   }
 }
 
-export function getGoogleCalendarEvents({ start, end, force }) {
+export function getGoogleCalendarEvents({ force } = {}) {
   return async (dispatch, getState) => {
     console.group('getGoogleCalendarEvents')
     await dispatch(processQueue())
@@ -69,20 +68,14 @@ export function getGoogleCalendarEvents({ start, end, force }) {
 
     const { calendars } = getState().settings
     const { lastFetch } = getState().events
-    const timeMin = moment(start).startOf('day')
-    const timeMax = moment(end || start)
-      .startOf('day')
-      .add(1, 'day')
     const delay = moment().subtract(FETCH_DELAY, 's')
 
-    console.log('Use settings', { calendars, start, end, lastFetch, force })
+    console.log('Use settings', { calendars, lastFetch, force })
 
     if (
       !force &&
       lastFetch.timeCalled &&
-      moment(lastFetch.timeCalled) >= delay &&
-      moment(lastFetch.timeMin) <= timeMin &&
-      moment(lastFetch.timeMax) >= timeMax
+      moment(lastFetch.timeCalled) >= delay
     ) {
       console.log('Skip data fetch.')
       console.groupEnd()
@@ -92,16 +85,18 @@ export function getGoogleCalendarEvents({ start, end, force }) {
     for (let calendar of calendars.incoming) {
       console.log({ calendar })
       try {
-        const newEvents = await getEvents({ calendar, timeMin, timeMax })
-        console.log({ newEvents })
+        const { items, syncToken } = await Google.getEvents({
+          calendar,
+          syncToken: lastFetch.syncTokens[calendar],
+        })
         dispatch(
           saveEvents(
-            newEvents.map(event => ({
+            items.map((event) => ({
               ...event,
               calendar,
             })),
-            timeMin,
-            timeMax
+            calendar,
+            syncToken
           )
         )
       } catch (error) {
@@ -124,12 +119,8 @@ export function createGoogleCalendarEvent(event) {
     }
     dispatch(addEvent(payload))
     dispatch(addCall({ type: 'createEvent', payload }))
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    dispatch(getGoogleCalendarEvents({ force: true }))
+    return payload
   }
 }
 
@@ -140,18 +131,14 @@ export function patchGoogleCalendarEvent(event) {
       event,
       calendar: outgoing,
     }
-    dispatch(updateEvent(payload))
+    dispatch(addEvent(payload))
     dispatch(addCall({ type: 'patchEvent', payload }))
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    dispatch(getGoogleCalendarEvents({ force: true }))
+    return payload
   }
 }
 
-export function patchRecurringGoogleCalendarEvent(event) {
+export function patchRecurringFutureGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
     const { outgoing } = getState().settings.calendars
     const payload = {
@@ -160,13 +147,23 @@ export function patchRecurringGoogleCalendarEvent(event) {
       calendar: outgoing,
     }
     dispatch(updateRecurringEvent(payload))
-    dispatch(addCall({ type: 'patchRecurringEvent', payload }))
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    dispatch(addCall({ type: 'patchRecurringFutureEvent', payload }))
+    dispatch(getGoogleCalendarEvents({ force: true }))
+    return payload
+  }
+}
+
+export function deleteRecurringFutureGoogleCalendarEvent(event) {
+  return async (dispatch, getState) => {
+    const { outgoing } = getState().settings.calendars
+    const payload = {
+      event,
+      calendar: outgoing,
+    }
+    dispatch(deleteRecurringEvent(payload))
+    dispatch(addCall({ type: 'deleteRecurringFutureEvent', payload }))
+    dispatch(getGoogleCalendarEvents({ force: true }))
+    return payload
   }
 }
 
@@ -179,30 +176,28 @@ export function deleteGoogleCalendarEvent(event) {
     }
     dispatch(deleteEvent(payload))
     dispatch(addCall({ type: 'deleteEvent', payload }))
-    dispatch(
-      getGoogleCalendarEvents({
-        start: event.start.dateTime,
-        force: true,
-      })
-    )
+    dispatch(getGoogleCalendarEvents({ force: true }))
+    return payload
   }
 }
 
 const initialState = {
   data: {},
-  lastFetch: {},
+  lastFetch: {
+    syncTokens: {},
+  },
 }
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case SAVE_EVENTS:
       return massageEventsResponse(state, action)
-    case ADD_EVENT:
-      return addOfflineEvent(state, action)
-    case UPDATE_EVENT:
-      return updateOfflineEvent(state, action)
+    case SET_EVENT:
+      return setOfflineEvent(state, action)
     case UPDATE_RECURRING_EVENT:
-      return updateOfflineRecurringEvent(state, action)
+      return updateOfflineRecurringFutureEvent(state, action)
+    case DELETE_RECURRING_EVENT:
+      return deleteOfflineRecurringFutureEvent(state, action)
     case DELETE_EVENT:
       return deleteOfflineEvent(state, action)
     default:
@@ -210,86 +205,192 @@ export default function reducer(state = initialState, action) {
   }
 }
 
-function massageEventsResponse(state, { events, timeMin, timeMax }) {
-  let { data, lastFetch } = state
+function massageEventsResponse(state, { events, calendar, syncToken }) {
+  const result = { ...state.data }
 
-  const start = moment(timeMin).toISOString()
-  const end = moment(timeMax).toISOString()
-  const result = {}
+  let i = events.length
+  console.groupCollapsed(`Constructing local data, count: ${i}`)
+  const MAX_RECURRING_DATE = moment().add(1, 'year').toDate()
+  const recurringEvents = []
+  const singleEvents = []
+  events.forEach((event) => {
+    if (event.recurrence) recurringEvents.push(event)
+    else singleEvents.push(event)
+  })
 
-  events.forEach(event => event.start.dateTime && (result[event.id] = event))
-  for (let event of Object.values(data)) {
-    if (event.start.dateTime <= start || event.end.dateTime >= end) {
+  console.log(`Constructing recurring events, count: ${recurringEvents.length}`)
+  recurringEvents.forEach((event) => {
+    i--
+    if (!event.start || !event.start.dateTime) {
+      delete result[event.id]
+      return
+    }
+
+    console.group(i, { id: event.id, event })
+    result[event.id] = {
+      event,
+      singleEvents: {},
+    }
+
+    const FLOAT_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS'
+    const duration = moment(event.end.dateTime).diff(event.start.dateTime)
+
+    const DTSTART = moment(event.start.dateTime)
+      .tz(event.start.timeZone)
+      .format('YYYYMMDDTHHmmss')
+    const recurrence = [
+      ...event.recurrence,
+      `DTSTART;TZID=${event.start.timeZone}:${DTSTART}`,
+    ]
+    console.log({ DTSTART, recurrence })
+
+    const rset = rrulestr(recurrence.join('\n'), { forceset: true })
+    const dates = rset.between(new Date(0), MAX_RECURRING_DATE)
+    console.log({ rset, dates })
+    console.groupEnd()
+
+    for (let date of dates) {
+      const start = moment(date.toISOString(), FLOAT_FORMAT).toISOString()
+      const end = moment(start).add(duration).toISOString()
+      const id = `${event.id}_${start.replace(/\.[0-9]{3}|-|:|\./g, '')}`
+      result[event.id].singleEvents = {
+        ...result[event.id].singleEvents,
+        [id]: {
+          ...event,
+          id,
+          recurringEventId: event.id,
+          start: {
+            ...event.start,
+            dateTime: start,
+          },
+          end: {
+            ...event.end,
+            dateTime: end,
+          },
+        },
+      }
+    }
+  })
+
+  console.log(`Constructing single events, count: ${singleEvents.length}`)
+  singleEvents.forEach((event) => {
+    if (!event.start || !event.start.dateTime) {
+      if (event.recurringEventId) {
+        result[event.recurringEventId] = {
+          ...result[event.recurringEventId],
+        }
+        result[event.recurringEventId].singleEvents = {
+          ...result[event.recurringEventId].singleEvents,
+        }
+        delete result[event.recurringEventId].singleEvents[event.id]
+      } else {
+        delete result[event.id]
+      }
+      return
+    }
+
+    if (event.recurringEventId) {
+      result[event.recurringEventId] = {
+        ...result[event.recurringEventId],
+      }
+      result[event.recurringEventId].singleEvents = {
+        ...result[event.recurringEventId].singleEvents,
+        [event.id]: event,
+      }
+    } else {
       result[event.id] = event
     }
-  }
+  })
+
+  console.groupEnd()
 
   return {
     ...state,
     data: result,
     lastFetch: {
-      timeMin: lastFetch.timeMin
-        ? moment.min(moment(timeMin), moment(lastFetch.timeMin))
-        : timeMin,
-      timeMax: lastFetch.timeMax
-        ? moment.max(moment(timeMax), moment(lastFetch.timeMax))
-        : timeMax,
+      syncTokens: {
+        ...state.lastFetch.syncTokens,
+        [calendar]: syncToken,
+      },
       timeCalled: new Date(),
     },
   }
 }
 
-function addOfflineEvent(state, { event, calendar }) {
+function setOfflineEvent(state, { event, calendar }) {
+  const data = { ...state.data }
+  if (event.recurringEventId) {
+    data[event.recurringEventId] = {
+      ...state.data[event.recurringEventId],
+      singleEvents: {
+        ...state.data[event.recurringEventId].singleEvents,
+        [event.id]: {
+          ...event,
+          calendar,
+        },
+      },
+    }
+  } else {
+    data[event.id] = {
+      ...event,
+      calendar,
+    }
+  }
   return {
     ...state,
-    data: {
-      ...state.data,
-      [event.id]: {
-        ...event,
-        calendar,
+    data,
+  }
+}
+
+function updateOfflineRecurringFutureEvent(state, { event, newId }) {
+  const data = {
+    ...state.data,
+    [event.recurringEventId]: {
+      ...state.data[event.recurringEventId],
+      singleEvents: {
+        ...state.data[event.recurringEventId].singleEvents,
+      },
+    },
+    [newId]: {},
+  }
+
+  for (let s of data[event.recurringEventId].singleEvents) {
+    if (s.start.dateTime >= event.start.dateTime) {
+      delete data[event.recurringEventId].singleEvents[s.id]
+      const newEvent = {
+        ...s,
+        id: s.id.replace(s.recurringEventId, newId),
+      }
+      data[newId] = {
+        ...data[newId],
+        singleEvents: {
+          ...data[newId].singleEvents,
+          [newEvent.id]: newEvent,
+        },
+      }
+    }
+  }
+
+  return {
+    ...state,
+    data,
+  }
+}
+
+function deleteOfflineRecurringFutureEvent(state, { event, newId }) {
+  const data = {
+    ...state.data,
+    [event.recurringEventId]: {
+      ...state.data[event.recurringEventId],
+      singleEvents: {
+        ...state.data[event.recurringEventId].singleEvents,
       },
     },
   }
-}
 
-function updateOfflineEvent(state, { event }) {
-  return {
-    ...state,
-    data: {
-      ...state.data,
-      [event.id]: event,
-    },
-  }
-}
-
-function updateOfflineRecurringEvent(state, { event, newId }) {
-  const data = {
-    ...state.data,
-  }
-  const oldEvent = state.data[event.id]
-  const startDiff = moment(event.start.dateTime).diff(oldEvent.start.dateTime)
-  const endDiff = moment(event.end.dateTime).diff(oldEvent.end.dateTime)
-
-  for (let id in data) {
-    if (
-      data[id].recurringEventId === event.recurringEventId &&
-      data[id].start.dateTime >= event.start.dateTime
-    ) {
-      data[id] = {
-        ...data[id],
-        ...event,
-        start: {
-          dateTime: moment(data[id].start.dateTime)
-            .add(startDiff)
-            .toISOString(),
-        },
-        end: {
-          dateTime: moment(data[id].end.dateTime)
-            .add(endDiff)
-            .toISOString(),
-        },
-        id: newId + '_' + moment(data[id].start.dateTime).toISOString(),
-      }
+  for (let s of data[event.recurringEventId].singleEvents) {
+    if (s.start.dateTime >= event.start.dateTime) {
+      delete data[event.recurringEventId].singleEvents[s.id]
     }
   }
 
@@ -301,7 +402,15 @@ function updateOfflineRecurringEvent(state, { event, newId }) {
 
 function deleteOfflineEvent(state, { event }) {
   const data = { ...state.data }
-  delete data[event.id]
+  if (event.recurringEventId) {
+    data[event.recurringEventId] = {
+      ...state.data[event.recurringEventId],
+      singleEvents: { ...state.data[event.recurringEventId].singleEvents },
+    }
+    delete data[event.recurringEventId].singleEvents[event.id]
+  } else {
+    delete data[event.id]
+  }
   return {
     ...state,
     data,

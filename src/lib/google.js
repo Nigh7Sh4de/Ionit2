@@ -69,16 +69,18 @@ export async function getEvent({ calendar, id }) {
   return await response.json()
 }
 
-export async function getEvents({ calendar, timeMin, timeMax }) {
+export async function getEvents({ calendar, syncToken }) {
   const { accessToken } = await GoogleSignin.getTokens()
-  const start = moment(timeMin).toISOString()
-  const end = moment(timeMax).toISOString()
-  let pageToken = null
+  let nextPageToken = null
+  let nextSyncToken = syncToken
   let items = []
   do {
-    let url = `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events?timeMin=${start}&timeMax=${end}&singleEvents=true`
-    if (pageToken) {
-      url += `&pageToken=${pageToken}`
+    let url = `https://www.googleapis.com/calendar/v3/calendars/${calendar}/events`
+    if (nextPageToken) {
+      url += `?pageToken=${nextPageToken}`
+    }
+    if (nextSyncToken) {
+      url += `?syncToken=${nextSyncToken}`
     }
 
     const response = await fetch(url, {
@@ -94,9 +96,10 @@ export async function getEvents({ calendar, timeMin, timeMax }) {
       throw json
     }
     items = [...items, ...json.items]
-    pageToken = json.nextPageToken
-  } while (pageToken)
-  return items
+    nextPageToken = json.nextPageToken
+    nextSyncToken = json.nextSyncToken
+  } while (nextPageToken)
+  return { items, syncToken: nextSyncToken }
 }
 
 export async function createEvent({ calendar, event }) {
@@ -147,18 +150,13 @@ export async function patchEvent({ calendar, event }) {
   return await response.json()
 }
 
-export async function patchRecurringEvent({ calendar, event, newId }) {
+export async function patchRecurringFutureEvent({ calendar, event, newId }) {
   try {
     const recEvent = await getEvent({ calendar, id: event.recurringEventId })
 
-    const options = RRule.parseString(recEvent.recurrence.join('\n'))
-    delete options.count
-    options.until = moment(event.start.dateTime)
-      .subtract(1)
-      .toDate()
     const oldEventPatch = {
       id: event.recurringEventId,
-      recurrence: RRule.optionsToString(options).split('\n'),
+      recurrence: limitRecurrence(recEvent.recurrence),
     }
     await patchEvent({ calendar, event: oldEventPatch })
 
@@ -174,4 +172,26 @@ export async function patchRecurringEvent({ calendar, event, newId }) {
   } catch (e) {
     console.error(e)
   }
+}
+
+export async function deleteRecurringFutureEvent({ calendar, event }) {
+  try {
+    const recEvent = await getEvent({ calendar, id: event.recurringEventId })
+
+    const oldEventPatch = {
+      id: event.recurringEventId,
+      recurrence: limitRecurrence(recEvent.recurrence),
+    }
+    return await patchEvent({ calendar, event: oldEventPatch })
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+function limitRecurrence(recurrence) {
+  const options = RRule.parseString(recurrence.join('\n'))
+  delete options.count
+  options.until = moment(event.start.dateTime).subtract(1).toDate()
+
+  return RRule.optionsToString(options).split('\n')
 }

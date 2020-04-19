@@ -19,29 +19,13 @@ export class Events extends Component {
   }
 
   componentDidMount() {
-    const dateString = moment.now()
-    this.fetchEvents({ dateString })
+    this.props.getGoogleCalendarEvents()
   }
 
-  async fetchEvents({ dateString }) {
-    const start = moment(dateString)
-      .subtract(1, 'month')
-      .startOf('month')
-    const end = moment(dateString)
-      .add(3, 'month')
-      .startOf('month')
-
-    await this.props.getGoogleCalendarEvents({ start, end })
-  }
-
-  onDateChanged = date => {
+  onDateChanged = () => {
     const { location } = this.props
-    const start = moment(date).startOf('day')
-    const end = moment(date)
-      .add(1, 'day')
-      .startOf('day')
 
-    this.props.getGoogleCalendarEvents({ start, end })
+    this.props.getGoogleCalendarEvents()
     if (!this.state.redirect && location.pathname !== '/events') {
       this.setState({
         redirect: true,
@@ -80,7 +64,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getGoogleCalendarEvents }, dispatch)
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Events)
+export default connect(mapStateToProps, mapDispatchToProps)(Events)

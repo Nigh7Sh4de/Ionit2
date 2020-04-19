@@ -98,8 +98,9 @@ export class Item extends PureComponent {
       return (
         <Redirect
           push
-          to={`/events/${blank ? 'new' : id}?start=${override.start ||
-            start.dateTime}&end=${override.end || end.dateTime}`}
+          to={`/events/${blank ? 'new' : id}?start=${
+            override.start || start.dateTime
+          }&end=${override.end || end.dateTime}`}
         />
       )
     }
@@ -107,9 +108,7 @@ export class Item extends PureComponent {
     let _start = moment.max(moment(start.dateTime), moment(date).startOf('day'))
     let _end = moment.min(
       moment(end.dateTime),
-      moment(date)
-        .startOf('day')
-        .add(1, 'day')
+      moment(date).startOf('day').add(1, 'day')
     )
 
     if (!blank) {
