@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux'
 
 import { addCategory, deleteCategory } from '../../redux/firestore'
 
-export class Tags extends Component {
+export class CategorySettings extends Component {
   constructor(props) {
     super(props)
 
@@ -26,8 +26,22 @@ export class Tags extends Component {
     })
   }
 
-  async create() {
-    await this.props.addCategory({ category: this.state.new })
+  create() {
+    const category = this.state.new
+    if (category && !this.props.categoryData[category]) {
+      const colorId = Math.floor(Math.random() * 12)
+      this.props.addCategory({
+        category,
+        colorId,
+        color: this.props.colors[colorId] || {
+          background: '#dddddd',
+          foreground: '#000000',
+        },
+      })
+    }
+    this.setState({
+      new: '',
+    })
   }
 
   async activate(category) {
@@ -55,6 +69,7 @@ export class Tags extends Component {
         <TextInput
           placeholder="New category"
           onChangeText={this.onChangeText.bind(this)}
+          value={this.state.new}
         />
         <TouchableOpacity
           style={{
@@ -73,8 +88,8 @@ export class Tags extends Component {
 
   renderActiveCategories() {
     return this.props.categories
-      .filter(categoryObject => !categoryObject.archived)
-      .map(categoryObject => (
+      .filter((categoryObject) => !categoryObject.archived)
+      .map((categoryObject) => (
         <View
           key={categoryObject.category}
           style={{
@@ -108,8 +123,8 @@ export class Tags extends Component {
 
   renderArchivedCategories() {
     return this.props.categories
-      .filter(categoryObject => categoryObject.archived)
-      .map(categoryObject => (
+      .filter((categoryObject) => categoryObject.archived)
+      .map((categoryObject) => (
         <View
           key={categoryObject.category}
           style={{
@@ -182,7 +197,9 @@ export class Tags extends Component {
 
 function mapStateToProps(state) {
   return {
+    colors: state.colors.event,
     categories: state.firestore.ordered.categories || [],
+    categoryData: state.firestore.data.categories || {},
   }
 }
 
@@ -190,4 +207,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ addCategory, deleteCategory }, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Tags)
+export default connect(mapStateToProps, mapDispatchToProps)(CategorySettings)
