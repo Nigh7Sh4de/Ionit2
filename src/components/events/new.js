@@ -18,42 +18,56 @@ import CategorySelector from '../lib/categorySelector'
 import {
   createGoogleCalendarEvent,
   patchGoogleCalendarEvent,
-  patchRecurringGoogleCalendarEvent,
+  patchRecurringFutureGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
+  deleteRecurringFutureGoogleCalendarEvent,
 } from '../../redux/events'
+import {
+  updateFirestoreEvent,
+  deleteFirestoreEvent,
+  deleteRecurringFutureFirestoreEvent,
+} from '../../redux/firestore'
 
 export class NewEvent extends Component {
   constructor(props) {
     super(props)
 
-    const { match, events, location } = this.props
+    const { match, events, fsEvents, location } = this.props
     const { id } = match.params
     const { start, end } = queryString.parse(location.search)
-    let event = {}
+    let gc = {}
+    let fs = {}
     let foundEvent = null
+    let foundFsEvent = null
 
     if (id === 'new') {
-      event = {
+      foundEvent = { start: {}, end: {} }
+      foundFsEvent = {}
+      gc = {
         start: start ? moment(start) : moment().startOf('hour'),
         end: end ? moment(end) : moment().add(1, 'hour').startOf('hour'),
         summary: '',
-        description: '',
-        location: '',
+      }
+      fs = {
         category: '',
       }
     } else {
       if (id.split('_').length > 1) {
         const recurringEventId = id.split('_')[0]
         const recurringEvent = events[recurringEventId]
-        if (
+        foundEvent =
           recurringEvent &&
           recurringEvent.singleEvents &&
           recurringEvent.singleEvents[id]
-        ) {
-          foundEvent = recurringEvent.singleEvents[id]
+        foundFsEvent = {
+          ...fsEvents[recurringEventId],
+          ...fsEvents[id],
         }
       } else {
         foundEvent = events[id]
+        foundFsEvent = {
+          ...fsEvents[id],
+        }
       }
       if (!foundEvent) {
         Alert.alert('Event not found', id)
@@ -63,57 +77,82 @@ export class NewEvent extends Component {
         return this.props.history.goBack()
       }
 
-      let category = ''
-      if (
-        foundEvent.extendedProperties &&
-        foundEvent.extendedProperties.private &&
-        foundEvent.extendedProperties.private.category
-      ) {
-        category = foundEvent.extendedProperties.private.category
-      }
-      event = {
-        ...foundEvent,
+      gc = {
         start: moment(foundEvent.start.dateTime),
         end: moment(foundEvent.end.dateTime),
         summary: foundEvent.summary,
-        description: foundEvent.description,
-        location: foundEvent.location,
         colorId: foundEvent.colorId,
-        category,
+      }
+      fs = {
+        category: foundFsEvent.category || '',
       }
     }
 
     this.state = {
+      loading: false,
+      foundEvent,
+      foundFsEvent,
+      gc,
+      fs,
+      updateMode: foundEvent.id ? 'single' : 'create',
+      dirty: {
+        gc: !!foundEvent.id,
+        fs: !!foundEvent.id,
+      },
       visible: {
         start: false,
         end: false,
         color: false,
         category: false,
       },
-      loading: false,
-      foundEvent,
-      verb: foundEvent ? 'Update' : 'Create',
-      updateMode: foundEvent ? 'single' : 'create',
-      ...event,
     }
-
-    this.onPress = this._onPress.bind(this)
-    this.delete = this._delete.bind(this)
   }
 
-  onChangeText(field, value) {
-    let category = this.state.category
-    if (field === 'summary') {
-      const values = value.split(' ').reverse()
-      values.forEach((word) => {
-        if (this.props.keywords[word]) {
-          category = this.props.keywords[word].category
-        }
-      })
-    }
+  onChangeCategory({ category, colorId }) {
+    const { fs, gc, dirty, foundEvent, foundFsEvent } = this.state
     this.setState({
-      [field]: value,
-      category,
+      fs: { ...fs, category },
+      gc: { ...gc, colorId },
+      dirty: {
+        ...dirty,
+        fs: category !== foundFsEvent.category,
+        gc: colorId !== foundEvent.colorId,
+      },
+    })
+    this.hideSelector('category')
+  }
+
+  onChangeDateTime(picker, value) {
+    const { gc, dirty, foundEvent } = this.state
+    this.setState({
+      gc: { ...gc, [picker]: moment(value) },
+      dirty: {
+        ...dirty,
+        gc: !moment(value).isSame(foundEvent[picker].dateTime),
+      },
+    })
+    this.hideSelector(picker)
+  }
+
+  onChangeSummary(summary) {
+    const { fs, gc, dirty, foundEvent, foundFsEvent } = this.state
+    let category = fs.category
+
+    const words = summary.split(' ').reverse()
+    words.forEach((word) => {
+      if (this.props.keywords[word]) {
+        category = this.props.keywords[word].category
+      }
+    })
+
+    this.setState({
+      fs: { ...fs, category },
+      gc: { ...gc, summary },
+      dirty: {
+        ...dirty,
+        fs: category !== foundFsEvent.category,
+        gc: summary !== foundEvent.summary,
+      },
     })
   }
 
@@ -123,22 +162,7 @@ export class NewEvent extends Component {
     })
   }
 
-  onChangeCategory({ category, colorId }) {
-    this.setState({
-      category,
-      colorId,
-    })
-    this.hideDateTime('category')
-  }
-
-  onChangeDateTime(picker, value) {
-    this.setState({
-      [picker]: moment(value),
-    })
-    this.hideDateTime(picker)
-  }
-
-  hideDateTime(picker) {
+  hideSelector(picker) {
     this.setState({
       visible: {
         ...this.state.visible,
@@ -147,7 +171,7 @@ export class NewEvent extends Component {
     })
   }
 
-  showDateTime(picker) {
+  showSelector(picker) {
     this.setState({
       visible: {
         ...this.state.visible,
@@ -156,71 +180,39 @@ export class NewEvent extends Component {
     })
   }
 
-  async _delete() {
-    this.setState({
-      loading: true,
-    })
-
-    const { foundEvent } = this.state
-    await this.props.deleteGoogleCalendarEvent(foundEvent)
-
-    this.setState({
-      loading: false,
-    })
-    this.props.history.goBack()
-  }
-
-  async _onPress() {
-    const {
-      foundEvent,
-      start,
-      end,
-      summary,
-      description,
-      location,
-      colorId,
-      category,
-      updateMode,
-    } = this.state
-
-    const event = {
-      ...foundEvent,
-      start: {
-        dateTime: start.format(),
-        timeZone: moment.tz.guess(),
-      },
-      end: {
-        dateTime: end.format(),
-        timeZone: moment.tz.guess(),
-      },
-      summary,
-      description,
-      location,
-      colorId,
-      extendedProperties: {
-        private: {
-          category,
-        },
-      },
-    }
+  async onDelete() {
+    const { foundEvent, updateMode, gc } = this.state
 
     this.setState({
       loading: true,
     })
 
     switch (updateMode) {
-      case 'create':
-        await this.props.createGoogleCalendarEvent(event)
-        break
       case 'single':
-        await this.props.patchGoogleCalendarEvent(event)
+        await this.props.deleteFirestoreEvent({
+          id: foundEvent.id,
+          recurringEventId: foundEvent.recurringEventId,
+        })
+        await this.props.deleteGoogleCalendarEvent({
+          id: foundEvent.id,
+          recurringEventId: foundEvent.recurringEventId,
+        })
         break
       case 'future':
-        await this.props.patchRecurringGoogleCalendarEvent(event)
+        await this.props.deleteRecurringFutureFirestoreEvent({
+          recurringEventId: foundEvent.recurringEventId,
+          start: { dateTime: gc.start.format() },
+        })
+        await this.props.deleteRecurringFutureGoogleCalendarEvent({
+          recurringEventId: foundEvent.recurringEventId,
+          start: { dateTime: gc.start.format() },
+        })
         break
       case 'all':
-        await this.props.patchGoogleCalendarEvent({
-          ...event,
+        await this.props.deleteFirestoreEvent({
+          id: foundEvent.recurringEventId,
+        })
+        await this.props.deleteGoogleCalendarEvent({
           id: foundEvent.recurringEventId,
         })
         break
@@ -232,23 +224,88 @@ export class NewEvent extends Component {
     this.props.history.goBack()
   }
 
+  async onPress() {
+    const { dirty, foundEvent, updateMode, gc, fs } = this.state
+    console.group('Event onPress')
+    console.log({ updateMode, dirty })
+
+    const timeZone =
+      (foundEvent && foundEvent.start && foundEvent.start.timeZone) ||
+      moment.tz.guess()
+    const _gc = {
+      colorId: gc.colorId,
+      end: {
+        dateTime: gc.end.format(),
+        timeZone,
+      },
+      id: foundEvent.id,
+      recurringEventId: foundEvent.recurringEventId,
+      start: {
+        dateTime: gc.start.format(),
+        timeZone,
+      },
+      summary: gc.summary,
+    }
+    const _fs = {
+      category: fs.category,
+      id: foundEvent.id,
+    }
+    console.log({ foundEvent, _gc, _fs })
+
+    this.setState({
+      loading: true,
+    })
+
+    switch (updateMode) {
+      case 'create':
+        const createResult = await this.props.createGoogleCalendarEvent(_gc)
+        dirty.fs &&
+          (await this.props.updateFirestoreEvent({
+            ..._fs,
+            id: createResult.event.id,
+          }))
+        break
+      case 'single':
+        dirty.gc && (await this.props.patchGoogleCalendarEvent(_gc))
+        dirty.fs && (await this.props.updateFirestoreEvent(_fs))
+        break
+      case 'future':
+        await this.props.deleteRecurringFutureFirestoreEvent({
+          recurringEventId: foundEvent.recurringEventId,
+          start: _gc.start.dateTime,
+        })
+        const patchResult = await this.props.patchRecurringFutureGoogleCalendarEvent(
+          _gc
+        )
+        await this.props.updateFirestoreEvent({ ..._fs, id: patchResult.newId })
+        break
+      case 'all':
+        dirty.gc &&
+          (await this.props.patchGoogleCalendarEvent({
+            ..._gc,
+            id: foundEvent.recurringEventId,
+            recurringEventId: null,
+          }))
+        dirty.fs &&
+          (await this.props.updateFirestoreEvent({
+            ..._fs,
+            id: foundEvent.recurringEventId,
+          }))
+        break
+    }
+
+    console.groupEnd()
+    this.setState({
+      loading: false,
+    })
+    this.props.history.goBack()
+  }
+
   render() {
-    const {
-      visible,
-      loading,
-      start,
-      end,
-      summary,
-      foundEvent,
-      category,
-      verb,
-      updateMode,
-    } = this.state
+    const { fs, gc, visible, loading, foundEvent, updateMode } = this.state
 
     if (loading) return <Text>Loading...</Text>
 
-    const _start = start.format('YYYY-MM-DD H:mm')
-    const _end = end.format('YYYY-MM-DD H:mm')
     return (
       <View style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1, paddingTop: 10 }}>
@@ -259,8 +316,8 @@ export class NewEvent extends Component {
             }}
           >
             <TextInput
-              value={summary}
-              onChangeText={this.onChangeText.bind(this, 'summary')}
+              value={gc.summary}
+              onChangeText={this.onChangeSummary.bind(this)}
               placeholder="Summary"
               style={{ fontSize: 32, textAlign: 'center' }}
             />
@@ -274,39 +331,43 @@ export class NewEvent extends Component {
             <View style={{ flex: 1 }}>
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={this.showDateTime.bind(this, 'start')}
+                onPress={this.showSelector.bind(this, 'start')}
               >
                 <Text style={{ fontSize: 16 }}>Start</Text>
-                <Text style={{ fontSize: 16 }}>{_start}</Text>
+                <Text style={{ fontSize: 16 }}>
+                  {gc.start.format('YYYY-MM-DD H:mm')}
+                </Text>
               </TouchableOpacity>
               <DateTimePicker
                 mode="datetime"
-                date={start.toDate()}
+                date={gc.start.toDate()}
                 isVisible={visible.start}
                 onConfirm={this.onChangeDateTime.bind(this, 'start')}
-                onCancel={this.hideDateTime.bind(this, 'start')}
+                onCancel={this.hideSelector.bind(this, 'start')}
               />
             </View>
             <View style={{ flex: 1 }}>
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={this.showDateTime.bind(this, 'end')}
+                onPress={this.showSelector.bind(this, 'end')}
               >
                 <Text style={{ fontSize: 16 }}>End</Text>
-                <Text style={{ fontSize: 16 }}>{_end}</Text>
+                <Text style={{ fontSize: 16 }}>
+                  {gc.end.format('YYYY-MM-DD H:mm')}
+                </Text>
               </TouchableOpacity>
               <DateTimePicker
                 mode="datetime"
-                date={end.toDate()}
+                date={gc.end.toDate()}
                 isVisible={visible.end}
                 onConfirm={this.onChangeDateTime.bind(this, 'end')}
-                onCancel={this.hideDateTime.bind(this, 'end')}
+                onCancel={this.hideSelector.bind(this, 'end')}
               />
             </View>
           </View>
           <TouchableOpacity
             style={{ padding: 15, alignItems: 'center' }}
-            onPress={this.showDateTime.bind(this, 'category')}
+            onPress={this.showSelector.bind(this, 'category')}
           >
             <Text style={{ fontSize: 16 }}>Category</Text>
             <View
@@ -320,12 +381,12 @@ export class NewEvent extends Component {
                 textAlign: 'center',
               }}
             >
-              <Text>{category || '+'}</Text>
+              <Text>{fs.category || '+'}</Text>
             </View>
             <CategorySelector
               visible={visible.category}
               onChangeCategory={this.onChangeCategory.bind(this)}
-              selected={category}
+              selected={fs.category}
             />
           </TouchableOpacity>
         </ScrollView>
@@ -355,9 +416,11 @@ export class NewEvent extends Component {
             backgroundColor: '#5095ef',
             alignItems: 'center',
           }}
-          onPress={this.onPress}
+          onPress={this.onPress.bind(this)}
         >
-          <Text style={{ color: '#ffffff', fontSize: 16 }}>{verb}</Text>
+          <Text style={{ color: '#ffffff', fontSize: 16 }}>
+            {foundEvent.id ? 'Update' : 'Create'}
+          </Text>
         </TouchableOpacity>
         {foundEvent && (
           <TouchableOpacity
@@ -365,7 +428,7 @@ export class NewEvent extends Component {
               paddingVertical: 15,
               alignItems: 'center',
             }}
-            onPress={this.delete}
+            onPress={this.onDelete.bind(this)}
           >
             <Text style={{ color: '#ff0000' }}>Delete</Text>
           </TouchableOpacity>
@@ -377,8 +440,9 @@ export class NewEvent extends Component {
 
 function mapStateToProps(state) {
   return {
-    events: state.events.data,
-    keywords: state.firestore.data.keywords,
+    events: state.events.data || {},
+    fsEvents: state.firestore.data.events || {},
+    keywords: state.firestore.data.keywords || {},
   }
 }
 
@@ -388,7 +452,11 @@ function mapDispatchToProps(dispatch) {
       createGoogleCalendarEvent,
       patchGoogleCalendarEvent,
       deleteGoogleCalendarEvent,
-      patchRecurringGoogleCalendarEvent,
+      patchRecurringFutureGoogleCalendarEvent,
+      deleteRecurringFutureGoogleCalendarEvent,
+      updateFirestoreEvent,
+      deleteFirestoreEvent,
+      deleteRecurringFutureFirestoreEvent,
     },
     dispatch
   )

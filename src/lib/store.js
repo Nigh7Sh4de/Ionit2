@@ -27,6 +27,8 @@ store.firestore.setListeners([{ collection: 'keywords' }])
 store.firestore.get('keywords')
 store.firestore.setListeners([{ collection: 'categories' }])
 store.firestore.get('categories')
+store.firestore.setListeners([{ collection: 'events' }])
+store.firestore.get('events')
 
 const persistor = persistStore(store)
 

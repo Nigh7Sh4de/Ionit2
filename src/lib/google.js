@@ -1,5 +1,5 @@
 import { GoogleSignin } from 'react-native-google-signin'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { RRule } from 'rrule'
 
 export async function configure() {
@@ -150,18 +150,17 @@ export async function patchEvent({ calendar, event }) {
   return await response.json()
 }
 
-export async function patchRecurringFutureEvent({ calendar, event, newId }) {
+export async function patchRecurringFutureEvent({
+  calendar,
+  event,
+  recurringEvent,
+  newId,
+}) {
   try {
-    const recEvent = await getEvent({ calendar, id: event.recurringEventId })
-
-    const oldEventPatch = {
-      id: event.recurringEventId,
-      recurrence: limitRecurrence(recEvent.recurrence),
-    }
-    await patchEvent({ calendar, event: oldEventPatch })
+    await deleteRecurringFutureEvent({ calendar, event, recurringEvent })
 
     const newEvent = {
-      ...recEvent,
+      ...recurringEvent,
       ...event,
       id: newId,
     }
@@ -174,13 +173,15 @@ export async function patchRecurringFutureEvent({ calendar, event, newId }) {
   }
 }
 
-export async function deleteRecurringFutureEvent({ calendar, event }) {
+export async function deleteRecurringFutureEvent({
+  calendar,
+  event,
+  recurringEvent,
+}) {
   try {
-    const recEvent = await getEvent({ calendar, id: event.recurringEventId })
-
     const oldEventPatch = {
       id: event.recurringEventId,
-      recurrence: limitRecurrence(recEvent.recurrence),
+      recurrence: limitRecurrence(recurringEvent.recurrence, event.start),
     }
     return await patchEvent({ calendar, event: oldEventPatch })
   } catch (e) {
@@ -188,10 +189,16 @@ export async function deleteRecurringFutureEvent({ calendar, event }) {
   }
 }
 
-function limitRecurrence(recurrence) {
+function limitRecurrence(recurrence, start) {
+  const FLOAT_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS\\Z'
+  const floatTimezoneString = moment
+    .tz(start.dateTime, start.timeZone)
+    .subtract(1)
+    .format(FLOAT_FORMAT)
+
   const options = RRule.parseString(recurrence.join('\n'))
   delete options.count
-  options.until = moment(event.start.dateTime).subtract(1).toDate()
+  options.until = moment(floatTimezoneString).toDate()
 
   return RRule.optionsToString(options).split('\n')
 }

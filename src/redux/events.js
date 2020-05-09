@@ -140,13 +140,15 @@ export function patchGoogleCalendarEvent(event) {
 
 export function patchRecurringFutureGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
+    const events = getState().events.data
     const { outgoing } = getState().settings.calendars
     const payload = {
       newId: uuidv4().replace(/-/g, ''),
       event,
+      recurringEvent: events[event.recurringEventId].event,
       calendar: outgoing,
     }
-    dispatch(updateRecurringEvent(payload))
+    dispatch(updateRecurringFutureEvent(payload))
     dispatch(addCall({ type: 'patchRecurringFutureEvent', payload }))
     dispatch(getGoogleCalendarEvents({ force: true }))
     return payload
@@ -155,10 +157,12 @@ export function patchRecurringFutureGoogleCalendarEvent(event) {
 
 export function deleteRecurringFutureGoogleCalendarEvent(event) {
   return async (dispatch, getState) => {
+    const events = getState().events.data
     const { outgoing } = getState().settings.calendars
     const payload = {
       event,
       calendar: outgoing,
+      recurringEvent: events[event.recurringEventId].event,
     }
     dispatch(deleteRecurringEvent(payload))
     dispatch(addCall({ type: 'deleteRecurringFutureEvent', payload }))
@@ -351,16 +355,24 @@ function updateOfflineRecurringFutureEvent(state, { event, newId }) {
         ...state.data[event.recurringEventId].singleEvents,
       },
     },
-    [newId]: {},
+    [newId]: {
+      event: {
+        ...event,
+        id: newId,
+      },
+      singleEvents: {},
+    },
   }
 
-  for (let s of data[event.recurringEventId].singleEvents) {
+  for (let sid in data[event.recurringEventId].singleEvents) {
+    const s = data[event.recurringEventId].singleEvents[sid]
     if (s.start.dateTime >= event.start.dateTime) {
-      delete data[event.recurringEventId].singleEvents[s.id]
       const newEvent = {
         ...s,
         id: s.id.replace(s.recurringEventId, newId),
+        recurringEventId: newId,
       }
+      delete data[event.recurringEventId].singleEvents[sid]
       data[newId] = {
         ...data[newId],
         singleEvents: {

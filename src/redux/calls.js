@@ -112,6 +112,38 @@ function addCallToQueue(state, { call }) {
           data: [...data, call],
         }
       }
+    case 'deleteRecurringFutureEvent':
+    case 'patchRecurringFutureEvent':
+      return {
+        ...state,
+        data: [
+          ...state.data
+            .filter(
+              (call) =>
+                !(
+                  call.payload.event.recurringEventId === payload.event.id &&
+                  call.payload.event.start &&
+                  call.payload.event.start.dateTime >=
+                    payload.event.start.dateTime
+                )
+            )
+            .map((call) =>
+              call.payload.event.id === payload.event.id
+                ? {
+                    ...call,
+                    payload: {
+                      ...call.payload,
+                      event: {
+                        ...call.payload.event,
+                        ...payload.event,
+                      },
+                    },
+                  }
+                : call
+            ),
+          call,
+        ],
+      }
   }
 }
 
