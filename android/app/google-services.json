@@ -15,19 +15,35 @@
       },
       "oauth_client": [
         {
+          "client_id": "766343695982-3eh4p8slgg4v770039p6o9djiljpm44b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ionit",
+            "certificate_hash": "9285af4a6960679a533ee2528775fca4ff955a23"
+          }
+        },
+        {
+          "client_id": "766343695982-89vagrcugcr1gq4cs5qaj788qc91meni.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ionit",
+            "certificate_hash": "7e64a4b8ec0bfa47ce5aa2b7c9375a9101668eb8"
+          }
+        },
+        {
+          "client_id": "766343695982-akt40g8krqimpa7pj0bp2pgstpfccphh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ionit",
+            "certificate_hash": "57782c81afc7a47d6bf5f74a8b4616f832992cf7"
+          }
+        },
+        {
           "client_id": "766343695982-gfk538s7e66tqthp8ocvi1nsqv3gvn89.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ionit",
             "certificate_hash": "053fa687ee86e3e0bf0eed2dd153abd444dc6a5c"
-          }
-        },
-        {
-          "client_id": "766343695982-rp1ipsl3vqstcff39tu7ak3ej43q38bv.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ionit",
-            "certificate_hash": "7d2c5c10be72ad2e96a1c88fbe6a1e07f20f96f2"
           }
         },
         {
@@ -39,19 +55,19 @@
           }
         },
         {
+          "client_id": "766343695982-rp1ipsl3vqstcff39tu7ak3ej43q38bv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ionit",
+            "certificate_hash": "7d2c5c10be72ad2e96a1c88fbe6a1e07f20f96f2"
+          }
+        },
+        {
           "client_id": "766343695982-us37sla6ll8gaa6mclo94meumidrnp4d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ionit",
             "certificate_hash": "fcb1d7b284f27119bc2d5908fd8048573d5f2c65"
-          }
-        },
-        {
-          "client_id": "766343695982-3eh4p8slgg4v770039p6o9djiljpm44b.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ionit",
-            "certificate_hash": "9285af4a6960679a533ee2528775fca4ff955a23"
           }
         },
         {
