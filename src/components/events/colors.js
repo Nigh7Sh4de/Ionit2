@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import { ScrollView, Text, TouchableOpacity, Modal } from 'react-native'
 import { connect } from 'react-redux'
 
+/**
+ * Modal to select a color out of a palette
+ */
 export class Colors extends Component {
   onChangeColor(color) {
     this.props.onChangeColor(color)
@@ -9,7 +12,7 @@ export class Colors extends Component {
 
   render() {
     const { colors, color, visible } = this.props
-    const colorPalette = Object.keys(colors).map(id => (
+    const colorPalette = Object.keys(colors).map((id) => (
       <TouchableOpacity
         key={id}
         style={{

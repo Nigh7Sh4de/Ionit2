@@ -8,16 +8,17 @@ import { getGoogleCalendarEvents } from '../../redux/events'
 
 import AgendaItem from './item'
 
+/**
+ * Component that renders a slice of calendar items (currently used as a day view in the calendar)
+ */
 export class ListEvents extends Component {
   filterEvents(events, date) {
     let start = moment(date).startOf('day')
-    let end = moment(date)
-      .startOf('day')
-      .add(1, 'day')
+    let end = moment(date).startOf('day').add(1, 'day')
 
     const result = events
       .filter(
-        event =>
+        (event) =>
           moment(event.start.dateTime).isSameOrBefore(end) &&
           moment(event.end.dateTime).isSameOrAfter(start)
       )
@@ -66,7 +67,7 @@ export class ListEvents extends Component {
     const { events, context } = this.props
     const { date } = context
     const renderedEvents = this.filterEvents(Object.values(events), date).map(
-      event => (
+      (event) => (
         <AgendaItem
           key={event.id || event.start.dateTime}
           date={date}

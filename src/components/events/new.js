@@ -20,6 +20,9 @@ import {
   deleteGoogleCalendarEvent,
 } from '../../redux/events'
 
+/**
+ * Form to create new event items
+ */
 export class NewEvent extends Component {
   constructor(props) {
     super(props)
@@ -33,11 +36,7 @@ export class NewEvent extends Component {
     if (id === 'new') {
       event = {
         start: start ? moment(start) : moment().startOf('hour'),
-        end: end
-          ? moment(end)
-          : moment()
-              .add(1, 'hour')
-              .startOf('hour'),
+        end: end ? moment(end) : moment().add(1, 'hour').startOf('hour'),
         summary: '',
         description: '',
         location: '',
@@ -84,7 +83,7 @@ export class NewEvent extends Component {
     let category = this.state.category
     if (field === 'summary') {
       const values = value.split(' ').reverse()
-      values.forEach(word => {
+      values.forEach((word) => {
         if (this.props.keywords[word]) {
           category = this.props.keywords[word].category
         }
@@ -195,15 +194,8 @@ export class NewEvent extends Component {
   }
 
   render() {
-    const {
-      visible,
-      loading,
-      start,
-      end,
-      summary,
-      foundEvent,
-      category,
-    } = this.state
+    const { visible, loading, start, end, summary, foundEvent, category } =
+      this.state
     const _start = start.format('YYYY-MM-DD H:mm')
     const _end = end.format('YYYY-MM-DD H:mm')
 

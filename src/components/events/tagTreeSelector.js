@@ -4,12 +4,16 @@ import { connect } from 'react-redux'
 
 import { asTagTreeConsumer } from '../lib/TagTree'
 
+/**
+ * TO BE DEPREACATED
+ * Shows all available tags, categorised as the user configured them in tags settings. User can select a tag which will be passed up to parent component.
+ */
 export class TagTreeSelector extends Component {
-  onSelectTag = tag => {
+  onSelectTag = (tag) => {
     this.props.onSelectTag(tag)
   }
 
-  onUnselectTag = tag => {
+  onUnselectTag = (tag) => {
     this.props.onUnselectTag(tag)
   }
 
@@ -52,7 +56,7 @@ export class TagTreeSelector extends Component {
   }
 
   render() {
-    const data = this.props.tagList.map(item => ({
+    const data = this.props.tagList.map((item) => ({
       ...item,
       selected: this.props.selected.indexOf(item.tag) >= 0,
       key: item.tag,

@@ -13,6 +13,9 @@ const Style = {
   },
 }
 
+/**
+ * UNUSED
+ */
 export default class TagSelector extends PureComponent {
   constructor(props) {
     super(props)
@@ -60,7 +63,7 @@ export default class TagSelector extends PureComponent {
     return (
       <TextInput
         style={Style.input}
-        ref={input => (this.input = input)}
+        ref={(input) => (this.input = input)}
         onChangeText={this.onChangeText}
         onSubmitEditing={this.onSubmitEditing}
         onKeyPress={this.onKeyPress}

@@ -12,6 +12,9 @@ import { bindActionCreators } from 'redux'
 
 import { addCategory } from '../../redux/tags'
 
+/**
+ * Modal to select a category. Features a list of existing categories, and TextInput to create a new one.
+ */
 export class CategorySelector extends Component {
   constructor(props) {
     super(props)
@@ -60,8 +63,8 @@ export class CategorySelector extends Component {
 
   renderCategories() {
     return this.props.categories
-      .filter(categoryObject => !categoryObject.archived)
-      .map(categoryObject => {
+      .filter((categoryObject) => !categoryObject.archived)
+      .map((categoryObject) => {
         if (categoryObject.category === this.props.selected) {
           return (
             <TouchableOpacity
